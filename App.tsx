@@ -11,6 +11,8 @@ import ResultsScreen from "./src/screens/ResultsScreen";
 import FailedResultsScreen from "./src/screens/FailedResultsScreen";
 import EmailVoucherScreen from "./src/screens/EmailVoucherScreen";
 import VoucherSentScreen from "./src/screens/VoucherSentScreen";
+import VoucherPrintedScreen from "./src/screens/VoucherPrintedScreen";
+import VoucherPrintingScreen from "./src/screens/VoucherPrintingScreen";
 
 import { PlayerRole } from "./src/types/PlayerRole";
 import { GameSession } from "./src/types/GameSession";
@@ -32,14 +34,17 @@ import {
 type ScreenSlot = "screen1" | "screen2";
 
 export default function App() {
-  const [playerRole, setPlayerRole] = useState<PlayerRole | null>(null);
+  const [playerRole, setPlayerRole] =
+    useState<PlayerRole | null>(null);
 
-  const [session, setSession] = useState<GameSession | null>(null);
+  const [session, setSession] =
+    useState<GameSession | null>(null);
 
-  const [screenSlot, setScreenSlot] = useState<ScreenSlot | null>(null);
+  const [screenSlot, setScreenSlot] =
+    useState<ScreenSlot | null>(null);
 
   const [voucherView, setVoucherView] = useState<
-    "options" | "email" | "sent"
+    "options" | "email" | "sent" | "printing" | "printed"
   >("options");
 
   // --------------------------------------------------
@@ -47,7 +52,8 @@ export default function App() {
   // --------------------------------------------------
 
   useEffect(() => {
-    const unsubscribe = subscribeToGameSession(setSession);
+    const unsubscribe =
+      subscribeToGameSession(setSession);
 
     return unsubscribe;
   }, []);
@@ -58,9 +64,13 @@ export default function App() {
 
   useEffect(() => {
     const assignScreen = async () => {
-      const savedSlot = await AsyncStorage.getItem("screenSlot");
+      const savedSlot =
+        await AsyncStorage.getItem("screenSlot");
 
-      if (savedSlot === "screen1" || savedSlot === "screen2") {
+      if (
+        savedSlot === "screen1" ||
+        savedSlot === "screen2"
+      ) {
         setScreenSlot(savedSlot);
         return;
       }
@@ -68,7 +78,11 @@ export default function App() {
       const slot = await claimScreenSlot();
 
       if (slot) {
-        await AsyncStorage.setItem("screenSlot", slot);
+        await AsyncStorage.setItem(
+          "screenSlot",
+          slot
+        );
+
         setScreenSlot(slot);
       }
     };
@@ -82,9 +96,13 @@ export default function App() {
 
   useEffect(() => {
     const loadPlayerRole = async () => {
-      const savedRole = await AsyncStorage.getItem("playerRole");
+      const savedRole =
+        await AsyncStorage.getItem("playerRole");
 
-      if (savedRole === "player1" || savedRole === "player2") {
+      if (
+        savedRole === "player1" ||
+        savedRole === "player2"
+      ) {
         setPlayerRole(savedRole);
       }
     };
@@ -138,7 +156,9 @@ export default function App() {
         !session.gameStarted;
 
       if (sessionIsFresh) {
-        await AsyncStorage.removeItem("playerRole");
+        await AsyncStorage.removeItem(
+          "playerRole"
+        );
 
         setPlayerRole(null);
         setVoucherView("options");
@@ -224,7 +244,8 @@ export default function App() {
 
     // First scanner = Player 1
     // Second scanner = Player 2
-    const claimedRole = await claimPlayerRole();
+    const claimedRole =
+      await claimPlayerRole();
 
     if (!claimedRole) {
       return;
@@ -271,10 +292,11 @@ export default function App() {
       return;
     }
 
-    const success = await confirmPlayerLanguage(
-      playerRole,
-      language
-    );
+    const success =
+      await confirmPlayerLanguage(
+        playerRole,
+        language
+      );
 
     if (!success) {
       console.log(
@@ -314,7 +336,9 @@ export default function App() {
     // Remove only the customer's temporary identity.
     // Keep screenSlot so each physical screen remembers
     // whether it is screen1 or screen2.
-    await AsyncStorage.removeItem("playerRole");
+    await AsyncStorage.removeItem(
+      "playerRole"
+    );
 
     setPlayerRole(null);
     setVoucherView("options");
@@ -346,9 +370,13 @@ export default function App() {
   ) {
     return (
       <FailedResultsScreen
-        correctRounds={session.correctRounds}
+        correctRounds={
+          session.correctRounds
+        }
         totalRounds={6}
-        roundHistory={session.roundHistory}
+        roundHistory={
+          session.roundHistory
+        }
         onDone={handleResetGame}
       />
     );
@@ -371,6 +399,40 @@ export default function App() {
   }
 
   // --------------------------------------------------
+  // VOUCHER PRINTING ANIMATION
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds === 6 &&
+    voucherView === "printing"
+  ) {
+    return (
+      <VoucherPrintingScreen
+        onComplete={() => {
+          setVoucherView("printed");
+        }}
+      />
+    );
+  }
+
+  // --------------------------------------------------
+  // VOUCHER PRINTED CONFIRMATION
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds === 6 &&
+    voucherView === "printed"
+  ) {
+    return (
+      <VoucherPrintedScreen
+        onDone={handleResetGame}
+      />
+    );
+  }
+
+  // --------------------------------------------------
   // EMAIL VOUCHER
   // --------------------------------------------------
 
@@ -384,9 +446,13 @@ export default function App() {
         onSend={async (email) => {
           try {
             await sendVoucherEmail(email);
+
             setVoucherView("sent");
           } catch (error) {
-            console.error("Voucher email failed:", error);
+            console.error(
+              "Voucher email failed:",
+              error
+            );
           }
         }}
         onCancel={() => {
@@ -406,13 +472,15 @@ export default function App() {
   ) {
     return (
       <ResultsScreen
-        correctRounds={session.correctRounds}
+        correctRounds={
+          session.correctRounds
+        }
         totalRounds={6}
         onEmailVoucher={() => {
           setVoucherView("email");
         }}
         onPrintVoucher={() => {
-          console.log("Print voucher");
+          setVoucherView("printing");
         }}
       />
     );
@@ -431,9 +499,15 @@ export default function App() {
         playerRole={playerRole}
         reader={session.reader}
         guesser={session.guesser}
-        currentRound={session.currentRound}
-        roundResult={session.roundResult}
-        roundStartedAt={session.roundStartedAt}
+        currentRound={
+          session.currentRound
+        }
+        roundResult={
+          session.roundResult
+        }
+        roundStartedAt={
+          session.roundStartedAt
+        }
         onGuess={handleGuess}
         onNextRound={handleNextRound}
         onTimeout={handleTimeout}
@@ -448,8 +522,12 @@ export default function App() {
   if (bothPlayersStarted) {
     return (
       <LanguageSelectionScreen
-        confirmedLanguage={selectedLanguage}
-        unavailableLanguage={unavailableLanguage}
+        confirmedLanguage={
+          selectedLanguage
+        }
+        unavailableLanguage={
+          unavailableLanguage
+        }
         onConfirmLanguage={
           handleSelectLanguage
         }
@@ -479,7 +557,9 @@ export default function App() {
     <OrderScreen
       orderNumber={orderNumber}
       receiptVerified={receiptVerified}
-      onVerifyReceipt={handleVerifyReceipt}
+      onVerifyReceipt={
+        handleVerifyReceipt
+      }
     />
   );
 }
