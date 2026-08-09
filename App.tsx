@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { sendVoucherEmail } from "./src/services/voucherService";
 
 import WaitingScreen from "./src/screens/WaitingScreen";
 import OrderScreen from "./src/screens/OrderScreen";
@@ -380,15 +381,13 @@ export default function App() {
   ) {
     return (
       <EmailVoucherScreen
-        onSend={(email) => {
-          // Temporary until the real email backend
-          // is connected.
-          console.log(
-            "Send voucher to:",
-            email
-          );
-
-          setVoucherView("sent");
+        onSend={async (email) => {
+          try {
+            await sendVoucherEmail(email);
+            setVoucherView("sent");
+          } catch (error) {
+            console.error("Voucher email failed:", error);
+          }
         }}
         onCancel={() => {
           setVoucherView("options");
