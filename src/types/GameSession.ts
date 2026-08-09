@@ -37,4 +37,8 @@ export type GameSession = {
   correctIllustrationId: string;
 
   roundResult: "playing" | "correct" | "incorrect" | "timeout";
+
+  correctRounds: number;
+
+  gameFinished: boolean;
 };

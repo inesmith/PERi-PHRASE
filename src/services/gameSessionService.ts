@@ -206,16 +206,17 @@ export async function submitGuess(
         : "incorrect";
     }
 
-    const result =
-      illustrationId === data.correctIllustrationId
-        ? "correct"
-        : "incorrect";
+    const isCorrect =
+      illustrationId === data.correctIllustrationId;
 
     transaction.update(sessionRef, {
-      roundResult: result,
+      roundResult: isCorrect ? "correct" : "incorrect",
+      correctRounds: isCorrect
+        ? data.correctRounds + 1
+        : data.correctRounds,
     });
 
-    return result;
+    return isCorrect ? "correct" : "incorrect";
   });
 }
 
@@ -233,12 +234,17 @@ export async function advanceToNextRound() {
       return;
     }
 
-    const nextRoundNumber = data.currentRound + 1;
-    const nextRoundData = gameRounds[nextRoundNumber - 1];
+    // Round 6 finished -> end the game
+    if (data.currentRound >= gameRounds.length) {
+      transaction.update(sessionRef, {
+        gameFinished: true,
+      });
 
-    if (!nextRoundData) {
       return;
     }
+
+    const nextRoundNumber = data.currentRound + 1;
+    const nextRoundData = gameRounds[nextRoundNumber - 1];
 
     const nextReader = data.guesser;
     const nextGuesser = data.reader;
