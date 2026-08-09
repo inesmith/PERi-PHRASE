@@ -29,4 +29,12 @@ export type GameSession = {
 
   screen1Claimed: boolean;
   screen2Claimed: boolean;
+
+  reader: "player1" | "player2";
+  guesser: "player1" | "player2";
+
+  currentPhraseId: string;
+  correctIllustrationId: string;
+
+  roundResult: "playing" | "correct" | "incorrect" | "timeout";
 };

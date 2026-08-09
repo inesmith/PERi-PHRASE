@@ -16,6 +16,8 @@ import {
   startPlayer,
   claimPlayerRole,
   claimScreenSlot,
+  initializeGameRound,
+  confirmPlayerLanguage
 } from "./src/services/gameSessionService";
 
 type ScreenSlot = "screen1" | "screen2";
@@ -65,6 +67,50 @@ export default function App() {
 
     loadPlayerRole();
   }, []);
+
+  useEffect(() => {
+    const startGame = async () => {
+      if (!session || !playerRole) {
+        return;
+      }
+
+      const shouldInitializeGame =
+        session.player1Started &&
+        session.player2Started &&
+        session.player1Language !== "" &&
+        session.player2Language !== "" &&
+        !session.gameStarted &&
+        session.firstStarter === playerRole;
+
+      if (shouldInitializeGame) {
+        await initializeGameRound();
+      }
+    };
+
+    startGame();
+  }, [session, playerRole]);
+
+  useEffect(() => {
+    const resetSavedPlayerRole = async () => {
+      if (!session) return;
+
+      const sessionIsFresh =
+        !session.player1Connected &&
+        !session.player2Connected &&
+        !session.player1ReceiptVerified &&
+        !session.player2ReceiptVerified &&
+        !session.player1Started &&
+        !session.player2Started &&
+        !session.gameStarted;
+
+      if (sessionIsFresh) {
+        await AsyncStorage.removeItem("playerRole");
+        setPlayerRole(null);
+      }
+    };
+
+    resetSavedPlayerRole();
+  }, [session]);
 
   // Wait until Firestore and screen identity are ready
   if (!session || !screenSlot) {
@@ -183,18 +229,15 @@ export default function App() {
   // --------------------------------------------------
 
   const handleSelectLanguage = async (language: string) => {
-    if (!playerRole) {
-      return;
-    }
+    if (!playerRole) return;
 
-    if (playerRole === "player1") {
-      await updateGameSession({
-        player1Language: language,
-      });
-    } else {
-      await updateGameSession({
-        player2Language: language,
-      });
+    const success = await confirmPlayerLanguage(
+      playerRole,
+      language
+    );
+
+    if (!success) {
+      console.log("That language was already taken.");
     }
   };
 
@@ -208,7 +251,7 @@ export default function App() {
   }
 
   // Both players have started and selected languages
-  if (bothPlayersStarted && bothLanguagesSelected) {
+ if (session.gameStarted) {
     return <GameScreen />;
   }
 
