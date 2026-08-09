@@ -21,6 +21,7 @@ import {
   confirmPlayerLanguage,
   submitGuess,
   advanceToNextRound,
+  submitTimeout,
 } from "./src/services/gameSessionService";
 
 type ScreenSlot = "screen1" | "screen2";
@@ -29,6 +30,9 @@ export default function App() {
   const [playerRole, setPlayerRole] = useState<PlayerRole | null>(null);
   const [session, setSession] = useState<GameSession | null>(null);
   const [screenSlot, setScreenSlot] = useState<ScreenSlot | null>(null);
+  const handleTimeout = async () => {
+    await submitTimeout();
+  };
 
   // Listen for live Firestore changes
   useEffect(() => {
@@ -282,6 +286,8 @@ export default function App() {
         onGuess={handleGuess}
         roundResult={session.roundResult}
         onNextRound={handleNextRound}
+        roundStartedAt={session.roundStartedAt}
+        onTimeout={handleTimeout}
       />
     );
   }

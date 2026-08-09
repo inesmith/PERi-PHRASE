@@ -41,4 +41,6 @@ export type GameSession = {
   correctRounds: number;
 
   gameFinished: boolean;
+
+  roundStartedAt: number;
 };

@@ -146,6 +146,7 @@ export async function initializeGameRound() {
       currentPhraseId: "phrase001",
       correctIllustrationId: "illustration001",
       roundResult: "playing",
+      roundStartedAt: Date.now(),
       gameStarted: true,
     });
   });
@@ -255,7 +256,29 @@ export async function advanceToNextRound() {
       guesser: nextGuesser,
       currentPhraseId: nextRoundData.id,
       correctIllustrationId: nextRoundData.correctIllustrationId,
+      roundStartedAt: Date.now(),
       roundResult: "playing",
+    });
+  });
+}
+
+export async function submitTimeout() {
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(sessionRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Game session does not exist.");
+    }
+
+    const data = snapshot.data() as GameSession;
+
+    // Do nothing if somebody already answered
+    if (data.roundResult !== "playing") {
+      return;
+    }
+
+    transaction.update(sessionRef, {
+      roundResult: "timeout",
     });
   });
 }

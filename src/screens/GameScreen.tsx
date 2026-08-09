@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+
 import { PlayerRole } from "../types/PlayerRole";
 import { gameRounds } from "../data/gameRounds";
 
@@ -10,6 +12,8 @@ type GameScreenProps = {
   onGuess: (illustrationId: string) => void;
   roundResult: "playing" | "correct" | "incorrect" | "timeout";
   onNextRound: () => void;
+  roundStartedAt: number;
+  onTimeout: () => void;
 };
 
 export default function GameScreen({
@@ -18,13 +22,53 @@ export default function GameScreen({
   guesser,
   currentRound,
   roundResult,
+  roundStartedAt,
   onGuess,
   onNextRound,
+  onTimeout,
 }: GameScreenProps) {
   const isReader = playerRole === reader;
   const isGuesser = playerRole === guesser;
 
   const roundData = gameRounds[currentRound - 1];
+
+  const [timeLeft, setTimeLeft] = useState(30);
+  const timeoutSubmittedRef = useRef(false);
+
+  useEffect(() => {
+    timeoutSubmittedRef.current = false;
+  }, [roundStartedAt]);
+
+  useEffect(() => {
+    if (roundResult !== "playing" || !roundStartedAt) {
+      return;
+    }
+
+    const updateTimer = () => {
+        const elapsedSeconds = Math.floor(
+            (Date.now() - roundStartedAt) / 1000
+        );
+
+        const remaining = Math.max(30 - elapsedSeconds, 0);
+
+        setTimeLeft(remaining);
+
+        if (
+            remaining === 0 &&
+            isGuesser &&
+            !timeoutSubmittedRef.current
+            ) {
+            timeoutSubmittedRef.current = true;
+            onTimeout();
+        }
+    };
+
+    updateTimer();
+
+    const interval = setInterval(updateTimer, 250);
+
+    return () => clearInterval(interval);
+  }, [roundStartedAt, roundResult, onTimeout]);
 
   if (roundResult === "correct") {
     return (
@@ -35,8 +79,13 @@ export default function GameScreen({
           Nice one — you got the right illustration.
         </Text>
 
-        <Pressable style={styles.nextButton} onPress={onNextRound}>
-          <Text style={styles.nextButtonText}>Next Round</Text>
+        <Pressable
+          style={styles.nextButton}
+          onPress={onNextRound}
+        >
+          <Text style={styles.nextButtonText}>
+            Next Round
+          </Text>
         </Pressable>
       </View>
     );
@@ -51,8 +100,21 @@ export default function GameScreen({
           That was the wrong illustration.
         </Text>
 
-        <Pressable style={styles.nextButton} onPress={onNextRound}>
-          <Text style={styles.nextButtonText}>Next Round</Text>
+        <Text style={styles.correctAnswer}>
+            Correct answer:{" "}
+            {roundData?.illustrations.find(
+                (illustration) =>
+                illustration.id === roundData.correctIllustrationId
+            )?.label}
+        </Text>
+
+        <Pressable
+          style={styles.nextButton}
+          onPress={onNextRound}
+        >
+          <Text style={styles.nextButtonText}>
+            Next Round
+          </Text>
         </Pressable>
       </View>
     );
@@ -67,8 +129,13 @@ export default function GameScreen({
           No answer was selected in time.
         </Text>
 
-        <Pressable style={styles.nextButton} onPress={onNextRound}>
-          <Text style={styles.nextButtonText}>Next Round</Text>
+        <Pressable
+          style={styles.nextButton}
+          onPress={onNextRound}
+        >
+          <Text style={styles.nextButtonText}>
+            Next Round
+          </Text>
         </Pressable>
       </View>
     );
@@ -76,11 +143,17 @@ export default function GameScreen({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.round}>Round {currentRound}</Text>
+      <Text style={styles.timer}>{timeLeft}s</Text>
+
+      <Text style={styles.round}>
+        Round {currentRound}
+      </Text>
 
       {isReader && (
         <>
-          <Text style={styles.role}>You are the Reader</Text>
+          <Text style={styles.role}>
+            You are the Reader
+          </Text>
 
           <Text style={styles.instruction}>
             Read this phrase aloud:
@@ -94,7 +167,9 @@ export default function GameScreen({
 
       {isGuesser && (
         <>
-          <Text style={styles.role}>You are the Guesser</Text>
+          <Text style={styles.role}>
+            You are the Guesser
+          </Text>
 
           <Text style={styles.instruction}>
             Listen carefully and choose the correct illustration.
@@ -125,6 +200,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
+  },
+
+  timer: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 16,
   },
 
   round: {
@@ -183,5 +264,12 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 18,
     fontWeight: "600",
+  },
+
+  correctAnswer: {
+    fontSize: 22,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
