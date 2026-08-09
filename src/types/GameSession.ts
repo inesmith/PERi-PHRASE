@@ -8,9 +8,6 @@ export type GameSession = {
   player1Connected: boolean;
   player2Connected: boolean;
 
-  player1OrderNumber: string;
-  player2OrderNumber: string;
-
   player1ReceiptVerified: boolean;
   player2ReceiptVerified: boolean;
 
