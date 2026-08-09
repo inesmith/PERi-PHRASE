@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendVoucherEmail } from "./src/services/voucherService";
+import { gameRounds } from "./src/data/gameRounds";
 
 import WaitingScreen from "./src/screens/WaitingScreen";
 import OrderScreen from "./src/screens/OrderScreen";
@@ -46,6 +47,8 @@ export default function App() {
   const [voucherView, setVoucherView] = useState<
     "options" | "email" | "sent" | "printing" | "printed"
   >("options");
+
+  const totalRounds = gameRounds.length;
 
   // --------------------------------------------------
   // LIVE FIRESTORE SESSION
@@ -366,14 +369,14 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds < 6
+    session.correctRounds < totalRounds
   ) {
     return (
       <FailedResultsScreen
         correctRounds={
           session.correctRounds
         }
-        totalRounds={6}
+        totalRounds={totalRounds}
         roundHistory={
           session.roundHistory
         }
@@ -388,7 +391,7 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds === 6 &&
+    session.correctRounds === totalRounds &&
     voucherView === "sent"
   ) {
     return (
@@ -404,7 +407,7 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds === 6 &&
+    session.correctRounds === totalRounds &&
     voucherView === "printing"
   ) {
     return (
@@ -422,7 +425,7 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds === 6 &&
+    session.correctRounds === totalRounds &&
     voucherView === "printed"
   ) {
     return (
@@ -438,7 +441,7 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds === 6 &&
+    session.correctRounds === totalRounds &&
     voucherView === "email"
   ) {
     return (
@@ -468,14 +471,14 @@ export default function App() {
 
   if (
     session.gameFinished &&
-    session.correctRounds === 6
+    session.correctRounds === totalRounds
   ) {
     return (
       <ResultsScreen
         correctRounds={
           session.correctRounds
         }
-        totalRounds={6}
+        totalRounds={totalRounds}
         onEmailVoucher={() => {
           setVoucherView("email");
         }}

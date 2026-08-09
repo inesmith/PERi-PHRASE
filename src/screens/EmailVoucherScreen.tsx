@@ -8,7 +8,7 @@ import {
 } from "react-native";
 
 type EmailVoucherScreenProps = {
-  onSend: (email: string) => void;
+  onSend: (email: string) => Promise<void>;
   onCancel: () => void;
 };
 
@@ -17,6 +17,8 @@ export default function EmailVoucherScreen({
   onCancel,
 }: EmailVoucherScreenProps) {
   const [email, setEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const canSend = email.trim() !== "";
 
@@ -38,6 +40,12 @@ export default function EmailVoucherScreen({
         autoCorrect={false}
       />
 
+      {errorMessage !== "" && (
+        <Text style={styles.errorText}>
+            {errorMessage}
+        </Text>
+      )}
+
       <View style={styles.buttonRow}>
         <Pressable
           style={styles.button}
@@ -47,16 +55,33 @@ export default function EmailVoucherScreen({
         </Pressable>
 
         <Pressable
-          style={[
-            styles.button,
-            !canSend && styles.disabledButton,
-          ]}
-          disabled={!canSend}
-          onPress={() => onSend(email.trim())}
-        >
-          <Text style={styles.buttonText}>
-            Send Voucher
-          </Text>
+            style={[
+                styles.button,
+                (!canSend || isSending) && styles.disabledButton,
+            ]}
+            disabled={!canSend || isSending}
+            onPress={async () => {
+                if (isSending) return;
+
+                setIsSending(true);
+
+                setIsSending(true);
+                setErrorMessage("");
+
+                try {
+                await onSend(email.trim());
+                } catch (error) {
+                setErrorMessage(
+                    "We couldn't send your voucher. Please check your email address and try again."
+                );
+                } finally {
+                setIsSending(false);
+                }
+            }}
+            >
+            <Text style={styles.buttonText}>
+                {isSending ? "Sending..." : "Send Voucher"}
+            </Text>
         </Pressable>
       </View>
     </View>
@@ -112,5 +137,11 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: "600",
+  },
+
+  errorText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 4,
   },
 });

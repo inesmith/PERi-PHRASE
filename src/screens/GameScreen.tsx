@@ -9,9 +9,9 @@ type GameScreenProps = {
   reader: PlayerRole;
   guesser: PlayerRole;
   currentRound: number;
-  onGuess: (illustrationId: string) => void;
+  onGuess: (illustrationId: string) => Promise<void>;
   roundResult: "playing" | "correct" | "incorrect" | "timeout";
-  onNextRound: () => void;
+  onNextRound: () => Promise<void>;
   roundStartedAt: number;
   onTimeout: () => void;
 };
@@ -40,6 +40,9 @@ export default function GameScreen({
 
   const [timeLeft, setTimeLeft] = useState(30);
   const timeoutSubmittedRef = useRef(false);
+  const [isSubmittingGuess, setIsSubmittingGuess] = useState(false);
+
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   useEffect(() => {
     timeoutSubmittedRef.current = false;
@@ -86,9 +89,23 @@ export default function GameScreen({
         </Text>
 
         <Pressable
-          style={styles.nextButton}
-          onPress={onNextRound}
-        >
+            style={[
+                styles.nextButton,
+                isAdvancing && styles.disabledCard,
+            ]}
+            disabled={isAdvancing}
+            onPress={async () => {
+                if (isAdvancing) return;
+
+                setIsAdvancing(true);
+
+                try {
+                await onNextRound();
+                } finally {
+                setIsAdvancing(false);
+                }
+            }}
+            >
           <Text style={styles.nextButtonText}>
             {resultButtonLabel}
           </Text>
@@ -115,9 +132,23 @@ export default function GameScreen({
         </Text>
 
         <Pressable
-          style={styles.nextButton}
-          onPress={onNextRound}
-        >
+            style={[
+                styles.nextButton,
+                isAdvancing && styles.disabledCard,
+            ]}
+            disabled={isAdvancing}
+            onPress={async () => {
+                if (isAdvancing) return;
+
+                setIsAdvancing(true);
+
+                try {
+                await onNextRound();
+                } finally {
+                setIsAdvancing(false);
+                }
+            }}
+            >
           <Text style={styles.nextButtonText}>
             {resultButtonLabel}
           </Text>
@@ -136,8 +167,22 @@ export default function GameScreen({
         </Text>
 
         <Pressable
-          style={styles.nextButton}
-          onPress={onNextRound}
+        style={[
+            styles.nextButton,
+            isAdvancing && styles.disabledCard,
+        ]}
+        disabled={isAdvancing}
+        onPress={async () => {
+            if (isAdvancing) return;
+
+            setIsAdvancing(true);
+
+            try {
+            await onNextRound();
+            } finally {
+            setIsAdvancing(false);
+            }
+        }}
         >
           <Text style={styles.nextButtonText}>
             {resultButtonLabel}
@@ -185,9 +230,23 @@ export default function GameScreen({
             {roundData?.illustrations.map((illustration) => (
               <Pressable
                 key={illustration.id}
-                style={styles.illustrationCard}
-                onPress={() => onGuess(illustration.id)}
-              >
+                style={[
+                    styles.illustrationCard,
+                    isSubmittingGuess && styles.disabledCard,
+                ]}
+                disabled={isSubmittingGuess}
+                onPress={async () => {
+                    if (isSubmittingGuess) return;
+
+                    setIsSubmittingGuess(true);
+
+                    try {
+                    await onGuess(illustration.id);
+                    } finally {
+                    setIsSubmittingGuess(false);
+                    }
+                }}
+                >
                 <Text style={styles.illustrationText}>
                   {illustration.label}
                 </Text>
@@ -277,5 +336,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
     marginTop: 20,
+  },
+
+  disabledCard: {
+    opacity: 0.5,
   },
 });
