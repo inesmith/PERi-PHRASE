@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { PlayerRole } from "../types/PlayerRole";
 import { gameRounds } from "../data/gameRounds";
 
@@ -9,6 +9,7 @@ type GameScreenProps = {
   currentRound: number;
   onGuess: (illustrationId: string) => void;
   roundResult: "playing" | "correct" | "incorrect" | "timeout";
+  onNextRound: () => void;
 };
 
 export default function GameScreen({
@@ -18,46 +19,60 @@ export default function GameScreen({
   currentRound,
   roundResult,
   onGuess,
+  onNextRound,
 }: GameScreenProps) {
   const isReader = playerRole === reader;
   const isGuesser = playerRole === guesser;
+
   const roundData = gameRounds[currentRound - 1];
 
   if (roundResult === "correct") {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.role}>Correct!</Text>
+    return (
+      <View style={styles.container}>
+        <Text style={styles.role}>Correct!</Text>
 
-      <Text style={styles.instruction}>
-        Nice one — you got the right illustration.
-      </Text>
-    </View>
-  );
-}
+        <Text style={styles.instruction}>
+          Nice one — you got the right illustration.
+        </Text>
 
-if (roundResult === "incorrect") {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.role}>Not quite!</Text>
+        <Pressable style={styles.nextButton} onPress={onNextRound}>
+          <Text style={styles.nextButtonText}>Next Round</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
-      <Text style={styles.instruction}>
-        That was the wrong illustration.
-      </Text>
-    </View>
-  );
-}
+  if (roundResult === "incorrect") {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.role}>Not quite!</Text>
 
-if (roundResult === "timeout") {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.role}>Time's up!</Text>
+        <Text style={styles.instruction}>
+          That was the wrong illustration.
+        </Text>
 
-      <Text style={styles.instruction}>
-        No answer was selected in time.
-      </Text>
-    </View>
-  );
-}
+        <Pressable style={styles.nextButton} onPress={onNextRound}>
+          <Text style={styles.nextButtonText}>Next Round</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (roundResult === "timeout") {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.role}>Time's up!</Text>
+
+        <Text style={styles.instruction}>
+          No answer was selected in time.
+        </Text>
+
+        <Pressable style={styles.nextButton} onPress={onNextRound}>
+          <Text style={styles.nextButtonText}>Next Round</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -65,39 +80,39 @@ if (roundResult === "timeout") {
 
       {isReader && (
         <>
-            <Text style={styles.role}>You are the Reader</Text>
+          <Text style={styles.role}>You are the Reader</Text>
 
-            <Text style={styles.instruction}>
+          <Text style={styles.instruction}>
             Read this phrase aloud:
-            </Text>
+          </Text>
 
-            <Text style={styles.phrase}>
+          <Text style={styles.phrase}>
             {roundData?.phrase}
-            </Text>
+          </Text>
         </>
       )}
 
       {isGuesser && (
         <>
-            <Text style={styles.role}>You are the Guesser</Text>
+          <Text style={styles.role}>You are the Guesser</Text>
 
-            <Text style={styles.instruction}>
+          <Text style={styles.instruction}>
             Listen carefully and choose the correct illustration.
-            </Text>
+          </Text>
 
-            <View style={styles.illustrationGrid}>
+          <View style={styles.illustrationGrid}>
             {roundData?.illustrations.map((illustration) => (
-                <Pressable
-                    key={illustration.id}
-                    style={styles.illustrationCard}
-                    onPress={() => onGuess(illustration.id)}
-                    >
-                    <Text style={styles.illustrationText}>
-                        {illustration.label}
-                    </Text>
-                </Pressable>
+              <Pressable
+                key={illustration.id}
+                style={styles.illustrationCard}
+                onPress={() => onGuess(illustration.id)}
+              >
+                <Text style={styles.illustrationText}>
+                  {illustration.label}
+                </Text>
+              </Pressable>
             ))}
-            </View>
+          </View>
         </>
       )}
     </View>
@@ -153,6 +168,19 @@ const styles = StyleSheet.create({
   },
 
   illustrationText: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+
+  nextButton: {
+    marginTop: 24,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+  },
+
+  nextButtonText: {
     fontSize: 18,
     fontWeight: "600",
   },

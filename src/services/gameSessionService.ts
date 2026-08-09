@@ -7,6 +7,7 @@ import {
 
 import { db } from "./firebase";
 import { GameSession } from "../types/GameSession";
+import { gameRounds } from "../data/gameRounds";
 
 const sessionRef = doc(db, "gameSessions", "session001");
 
@@ -215,5 +216,40 @@ export async function submitGuess(
     });
 
     return result;
+  });
+}
+
+export async function advanceToNextRound() {
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(sessionRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Game session does not exist.");
+    }
+
+    const data = snapshot.data() as GameSession;
+
+    if (data.roundResult === "playing") {
+      return;
+    }
+
+    const nextRoundNumber = data.currentRound + 1;
+    const nextRoundData = gameRounds[nextRoundNumber - 1];
+
+    if (!nextRoundData) {
+      return;
+    }
+
+    const nextReader = data.guesser;
+    const nextGuesser = data.reader;
+
+    transaction.update(sessionRef, {
+      currentRound: nextRoundNumber,
+      reader: nextReader,
+      guesser: nextGuesser,
+      currentPhraseId: nextRoundData.id,
+      correctIllustrationId: nextRoundData.correctIllustrationId,
+      roundResult: "playing",
+    });
   });
 }

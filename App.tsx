@@ -19,6 +19,7 @@ import {
   initializeGameRound,
   confirmPlayerLanguage,
   submitGuess,
+  advanceToNextRound,
 } from "./src/services/gameSessionService";
 
 type ScreenSlot = "screen1" | "screen2";
@@ -251,6 +252,10 @@ export default function App() {
     console.log("Guess result:", result);
   };
 
+  const handleNextRound = async () => {
+    await advanceToNextRound();
+  };
+
   // Player scanned first and is waiting for Player 2
   if (playerRole && receiptVerified && !bothReceiptsVerified) {
     return <WaitingScreen />;
@@ -266,6 +271,7 @@ export default function App() {
         currentRound={session.currentRound}
         onGuess={handleGuess}
         roundResult={session.roundResult}
+        onNextRound={handleNextRound}
       />
     );
   }
