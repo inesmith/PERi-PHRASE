@@ -1,18 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { useState, useEffect } from "react";
-
-const languages = [
-  "isiZulu",
-  "isiXhosa",
-  "Afrikaans",
-  "Sepedi",
-  "Setswana",
-  "Sesotho",
-  "Xitsonga",
-  "siSwati",
-  "Tshivenda",
-  "isiNdebele",
-];
+import { languages } from "../data/languages";
 
 type LanguageSelectionScreenProps = {
   confirmedLanguage: string;

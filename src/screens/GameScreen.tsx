@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 
 import { PlayerRole } from "../types/PlayerRole";
 import { gameRounds } from "../data/gameRounds";
@@ -14,6 +14,7 @@ type GameScreenProps = {
   onNextRound: () => Promise<void>;
   roundStartedAt: number;
   onTimeout: () => void;
+  selectedLanguage: string;
 };
 
 export default function GameScreen({
@@ -26,11 +27,17 @@ export default function GameScreen({
   onGuess,
   onNextRound,
   onTimeout,
+  selectedLanguage,
 }: GameScreenProps) {
   const isReader = playerRole === reader;
   const isGuesser = playerRole === guesser;
 
   const roundData = gameRounds[currentRound - 1];
+
+  const phraseImage =
+  roundData?.phraseImages?.[
+    selectedLanguage as keyof typeof roundData.phraseImages
+  ];
 
   const isFinalRound = currentRound === gameRounds.length;
 
@@ -210,9 +217,17 @@ export default function GameScreen({
             Read this phrase aloud:
           </Text>
 
-          <Text style={styles.phrase}>
-            {roundData?.phrase}
-          </Text>
+          {phraseImage ? (
+            <Image
+                source={phraseImage}
+                style={styles.phraseImage}
+                resizeMode="contain"
+            />
+            ) : (
+            <Text style={styles.phrase}>
+                {roundData?.phrase}
+            </Text>
+          )}
         </>
       )}
 
@@ -340,5 +355,11 @@ const styles = StyleSheet.create({
 
   disabledCard: {
     opacity: 0.5,
+  },
+
+  phraseImage: {
+    width: 500,
+    height: 220,
+    marginTop: 24,
   },
 });

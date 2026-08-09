@@ -514,6 +514,7 @@ export default function App() {
         onGuess={handleGuess}
         onNextRound={handleNextRound}
         onTimeout={handleTimeout}
+        selectedLanguage={selectedLanguage}
       />
     );
   }
