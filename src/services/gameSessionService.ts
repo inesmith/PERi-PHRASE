@@ -6,10 +6,17 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./firebase";
-import { GameSession } from "../types/GameSession";
+import {
+  GameSession,
+  RoundHistoryItem,
+} from "../types/GameSession";
 import { gameRounds } from "../data/gameRounds";
 
 const sessionRef = doc(db, "gameSessions", "session001");
+
+// --------------------------------------------------
+// LIVE SESSION LISTENER
+// --------------------------------------------------
 
 export function subscribeToGameSession(
   callback: (session: GameSession) => void
@@ -21,11 +28,19 @@ export function subscribeToGameSession(
   });
 }
 
+// --------------------------------------------------
+// GENERAL SESSION UPDATE
+// --------------------------------------------------
+
 export async function updateGameSession(
   updates: Partial<GameSession>
 ) {
   await updateDoc(sessionRef, updates);
 }
+
+// --------------------------------------------------
+// PLAYER START
+// --------------------------------------------------
 
 export async function startPlayer(
   role: "player1" | "player2"
@@ -47,6 +62,7 @@ export async function startPlayer(
       updates.player2Started = true;
     }
 
+    // Remember who pressed Start first
     if (data.firstStarter === null) {
       updates.firstStarter = role;
     }
@@ -54,6 +70,12 @@ export async function startPlayer(
     transaction.update(sessionRef, updates);
   });
 }
+
+// --------------------------------------------------
+// CLAIM PLAYER ROLE
+// First receipt scanner = Player 1
+// Second receipt scanner = Player 2
+// --------------------------------------------------
 
 export async function claimPlayerRole(): Promise<
   "player1" | "player2" | null
@@ -87,6 +109,10 @@ export async function claimPlayerRole(): Promise<
   });
 }
 
+// --------------------------------------------------
+// CLAIM PHYSICAL SCREEN SLOT
+// --------------------------------------------------
+
 export async function claimScreenSlot(): Promise<
   "screen1" | "screen2" | null
 > {
@@ -119,6 +145,10 @@ export async function claimScreenSlot(): Promise<
   });
 }
 
+// --------------------------------------------------
+// INITIALIZE ROUND 1
+// --------------------------------------------------
+
 export async function initializeGameRound() {
   await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(sessionRef);
@@ -133,24 +163,38 @@ export async function initializeGameRound() {
       throw new Error("First starter has not been set.");
     }
 
+    // First person to press Start gets the illustrations first
     const guesser = data.firstStarter;
+
     const reader =
       data.firstStarter === "player1"
         ? "player2"
         : "player1";
 
+    const firstRound = gameRounds[0];
+
     transaction.update(sessionRef, {
       currentRound: 1,
+
       guesser,
       reader,
-      currentPhraseId: "phrase001",
-      correctIllustrationId: "illustration001",
+
+      currentPhraseId: firstRound.id,
+      correctIllustrationId:
+        firstRound.correctIllustrationId,
+
       roundResult: "playing",
       roundStartedAt: Date.now(),
+
       gameStarted: true,
+      gameFinished: false,
     });
   });
 }
+
+// --------------------------------------------------
+// SAFE LANGUAGE CONFIRMATION
+// --------------------------------------------------
 
 export async function confirmPlayerLanguage(
   role: "player1" | "player2",
@@ -170,7 +214,7 @@ export async function confirmPlayerLanguage(
         ? data.player2Language
         : data.player1Language;
 
-    // Someone else already confirmed this language
+    // The other player already confirmed this language
     if (otherPlayerLanguage === language) {
       return false;
     }
@@ -189,6 +233,10 @@ export async function confirmPlayerLanguage(
   });
 }
 
+// --------------------------------------------------
+// SUBMIT ILLUSTRATION GUESS
+// --------------------------------------------------
+
 export async function submitGuess(
   illustrationId: string
 ): Promise<"correct" | "incorrect"> {
@@ -201,6 +249,7 @@ export async function submitGuess(
 
     const data = snapshot.data() as GameSession;
 
+    // A round can only receive one result
     if (data.roundResult !== "playing") {
       return data.roundResult === "correct"
         ? "correct"
@@ -210,57 +259,35 @@ export async function submitGuess(
     const isCorrect =
       illustrationId === data.correctIllustrationId;
 
+    const result: "correct" | "incorrect" =
+      isCorrect ? "correct" : "incorrect";
+
+    const historyItem: RoundHistoryItem = {
+      roundNumber: data.currentRound,
+      phraseId: data.currentPhraseId,
+      result,
+    };
+
     transaction.update(sessionRef, {
-      roundResult: isCorrect ? "correct" : "incorrect",
+      roundResult: result,
+
       correctRounds: isCorrect
         ? data.correctRounds + 1
         : data.correctRounds,
+
+      roundHistory: [
+        ...data.roundHistory,
+        historyItem,
+      ],
     });
 
-    return isCorrect ? "correct" : "incorrect";
+    return result;
   });
 }
 
-export async function advanceToNextRound() {
-  await runTransaction(db, async (transaction) => {
-    const snapshot = await transaction.get(sessionRef);
-
-    if (!snapshot.exists()) {
-      throw new Error("Game session does not exist.");
-    }
-
-    const data = snapshot.data() as GameSession;
-
-    if (data.roundResult === "playing") {
-      return;
-    }
-
-    // Round 6 finished -> end the game
-    if (data.currentRound >= gameRounds.length) {
-      transaction.update(sessionRef, {
-        gameFinished: true,
-      });
-
-      return;
-    }
-
-    const nextRoundNumber = data.currentRound + 1;
-    const nextRoundData = gameRounds[nextRoundNumber - 1];
-
-    const nextReader = data.guesser;
-    const nextGuesser = data.reader;
-
-    transaction.update(sessionRef, {
-      currentRound: nextRoundNumber,
-      reader: nextReader,
-      guesser: nextGuesser,
-      currentPhraseId: nextRoundData.id,
-      correctIllustrationId: nextRoundData.correctIllustrationId,
-      roundStartedAt: Date.now(),
-      roundResult: "playing",
-    });
-  });
-}
+// --------------------------------------------------
+// ROUND TIMEOUT
+// --------------------------------------------------
 
 export async function submitTimeout() {
   await runTransaction(db, async (transaction) => {
@@ -272,13 +299,78 @@ export async function submitTimeout() {
 
     const data = snapshot.data() as GameSession;
 
-    // Do nothing if somebody already answered
+    // Ignore timeout if the round already ended
     if (data.roundResult !== "playing") {
       return;
     }
 
+    const historyItem: RoundHistoryItem = {
+      roundNumber: data.currentRound,
+      phraseId: data.currentPhraseId,
+      result: "timeout",
+    };
+
     transaction.update(sessionRef, {
       roundResult: "timeout",
+
+      roundHistory: [
+        ...data.roundHistory,
+        historyItem,
+      ],
+    });
+  });
+}
+
+// --------------------------------------------------
+// ADVANCE ROUND / VIEW FINAL RESULTS
+// --------------------------------------------------
+
+export async function advanceToNextRound() {
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(sessionRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Game session does not exist.");
+    }
+
+    const data = snapshot.data() as GameSession;
+
+    // Don't advance while the round is still active
+    if (data.roundResult === "playing") {
+      return;
+    }
+
+    // Round 6 is finished.
+    // The final button now means "View Results".
+    if (data.currentRound >= gameRounds.length) {
+      transaction.update(sessionRef, {
+        gameFinished: true,
+      });
+
+      return;
+    }
+
+    const nextRoundNumber = data.currentRound + 1;
+
+    const nextRoundData =
+      gameRounds[nextRoundNumber - 1];
+
+    // Swap Reader and Guesser
+    const nextReader = data.guesser;
+    const nextGuesser = data.reader;
+
+    transaction.update(sessionRef, {
+      currentRound: nextRoundNumber,
+
+      reader: nextReader,
+      guesser: nextGuesser,
+
+      currentPhraseId: nextRoundData.id,
+      correctIllustrationId:
+        nextRoundData.correctIllustrationId,
+
+      roundStartedAt: Date.now(),
+      roundResult: "playing",
     });
   });
 }

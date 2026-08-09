@@ -1,3 +1,9 @@
+export type RoundHistoryItem = {
+  roundNumber: number;
+  phraseId: string;
+  result: "correct" | "incorrect" | "timeout";
+};
+
 export type GameSession = {
   player1Connected: boolean;
   player2Connected: boolean;
@@ -21,9 +27,6 @@ export type GameSession = {
   currentRound: number;
   currentTurn: "player1" | "player2";
 
-  player1Score: number;
-  player2Score: number;
-
   screen1OrderNumber: string;
   screen2OrderNumber: string;
 
@@ -43,4 +46,6 @@ export type GameSession = {
   gameFinished: boolean;
 
   roundStartedAt: number;
+
+  roundHistory: RoundHistoryItem[];
 };

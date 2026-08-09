@@ -7,6 +7,7 @@ import InstructionsScreen from "./src/screens/InstructionsScreen";
 import LanguageSelectionScreen from "./src/screens/LanguageSelectionScreen";
 import GameScreen from "./src/screens/GameScreen";
 import ResultsScreen from "./src/screens/ResultsScreen";
+import FailedResultsScreen from "./src/screens/FailedResultsScreen";
 
 import { PlayerRole } from "./src/types/PlayerRole";
 import { GameSession } from "./src/types/GameSession";
@@ -266,7 +267,18 @@ export default function App() {
     return <WaitingScreen />;
   }
 
-  if (session.gameFinished) {
+  if (session.gameFinished && session.correctRounds < 6) {
+    return (
+      <FailedResultsScreen
+        correctRounds={session.correctRounds}
+        totalRounds={6}
+        roundHistory={session.roundHistory}
+        onDone={() => {}}
+      />
+    );
+  }
+
+  if (session.gameFinished && session.correctRounds === 6) {
     return (
       <ResultsScreen
         correctRounds={session.correctRounds}

@@ -32,6 +32,12 @@ export default function GameScreen({
 
   const roundData = gameRounds[currentRound - 1];
 
+  const isFinalRound = currentRound === gameRounds.length;
+
+  const resultButtonLabel = isFinalRound
+    ? "View Results"
+    : "Next Round";
+
   const [timeLeft, setTimeLeft] = useState(30);
   const timeoutSubmittedRef = useRef(false);
 
@@ -84,7 +90,7 @@ export default function GameScreen({
           onPress={onNextRound}
         >
           <Text style={styles.nextButtonText}>
-            Next Round
+            {resultButtonLabel}
           </Text>
         </Pressable>
       </View>
@@ -113,7 +119,7 @@ export default function GameScreen({
           onPress={onNextRound}
         >
           <Text style={styles.nextButtonText}>
-            Next Round
+            {resultButtonLabel}
           </Text>
         </Pressable>
       </View>
@@ -134,7 +140,7 @@ export default function GameScreen({
           onPress={onNextRound}
         >
           <Text style={styles.nextButtonText}>
-            Next Round
+            {resultButtonLabel}
           </Text>
         </Pressable>
       </View>
