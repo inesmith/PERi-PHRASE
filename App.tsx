@@ -17,7 +17,8 @@ import {
   claimPlayerRole,
   claimScreenSlot,
   initializeGameRound,
-  confirmPlayerLanguage
+  confirmPlayerLanguage,
+  submitGuess,
 } from "./src/services/gameSessionService";
 
 type ScreenSlot = "screen1" | "screen2";
@@ -245,14 +246,28 @@ export default function App() {
   // SCREEN FLOW
   // ==================================================
 
+  const handleGuess = async (illustrationId: string) => {
+    const result = await submitGuess(illustrationId);
+    console.log("Guess result:", result);
+  };
+
   // Player scanned first and is waiting for Player 2
   if (playerRole && receiptVerified && !bothReceiptsVerified) {
     return <WaitingScreen />;
   }
 
   // Both players have started and selected languages
- if (session.gameStarted) {
-    return <GameScreen />;
+  if (session.gameStarted && playerRole) {
+    return (
+      <GameScreen
+        playerRole={playerRole}
+        reader={session.reader}
+        guesser={session.guesser}
+        currentRound={session.currentRound}
+        onGuess={handleGuess}
+        roundResult={session.roundResult}
+      />
+    );
   }
 
   // Both players pressed Start -> language selection

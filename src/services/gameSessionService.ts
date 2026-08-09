@@ -186,3 +186,34 @@ export async function confirmPlayerLanguage(
     return true;
   });
 }
+
+export async function submitGuess(
+  illustrationId: string
+): Promise<"correct" | "incorrect"> {
+  return await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(sessionRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Game session does not exist.");
+    }
+
+    const data = snapshot.data() as GameSession;
+
+    if (data.roundResult !== "playing") {
+      return data.roundResult === "correct"
+        ? "correct"
+        : "incorrect";
+    }
+
+    const result =
+      illustrationId === data.correctIllustrationId
+        ? "correct"
+        : "incorrect";
+
+    transaction.update(sessionRef, {
+      roundResult: result,
+    });
+
+    return result;
+  });
+}
