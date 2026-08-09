@@ -3,41 +3,55 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 type ResultsScreenProps = {
   correctRounds: number;
   totalRounds: number;
+  onEmailVoucher: () => void;
+  onPrintVoucher: () => void;
 };
 
 export default function ResultsScreen({
   correctRounds,
   totalRounds,
+  onEmailVoucher,
+  onPrintVoucher,
 }: ResultsScreenProps) {
-  const voucherUnlocked = correctRounds === totalRounds;
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Game Complete!</Text>
+      <Text style={styles.title}>Congratulations!</Text>
 
       <Text style={styles.score}>
-        You got {correctRounds} out of {totalRounds} rounds correct.
+        {correctRounds} / {totalRounds}
       </Text>
 
-      {voucherUnlocked ? (
-        <>
-          <Text style={styles.success}>
-            Voucher unlocked!
+      <Text style={styles.success}>
+        Voucher Unlocked!
+      </Text>
+
+      <Text style={styles.message}>
+        You got every round correct.
+      </Text>
+
+      <Text style={styles.rewardMessage}>
+        Show your voucher at the order desk to collect your sticker pack.
+      </Text>
+
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={styles.button}
+          onPress={onEmailVoucher}
+        >
+          <Text style={styles.buttonText}>
+            Email Voucher
           </Text>
+        </Pressable>
 
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Email Voucher</Text>
-          </Pressable>
-
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Print Voucher</Text>
-          </Pressable>
-        </>
-      ) : (
-        <Text style={styles.message}>
-          You need all rounds correct to unlock the voucher.
-        </Text>
-      )}
+        <Pressable
+          style={styles.button}
+          onPress={onPrintVoucher}
+        >
+          <Text style={styles.buttonText}>
+            Print Voucher
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -47,23 +61,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 16,
-    padding: 24,
+    padding: 32,
+    gap: 18,
   },
 
   title: {
+    fontSize: 36,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  score: {
     fontSize: 32,
     fontWeight: "bold",
   },
 
-  score: {
-    fontSize: 22,
-    textAlign: "center",
-  },
-
   success: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "600",
+    textAlign: "center",
   },
 
   message: {
@@ -71,11 +87,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
+  rewardMessage: {
+    fontSize: 22,
+    fontWeight: "600",
+    textAlign: "center",
+    maxWidth: 650,
+    marginTop: 8,
+  },
+
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 20,
+    marginTop: 20,
+  },
+
   button: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 28,
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 30,
+    minWidth: 190,
+    alignItems: "center",
   },
 
   buttonText: {

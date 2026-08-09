@@ -8,6 +8,8 @@ import LanguageSelectionScreen from "./src/screens/LanguageSelectionScreen";
 import GameScreen from "./src/screens/GameScreen";
 import ResultsScreen from "./src/screens/ResultsScreen";
 import FailedResultsScreen from "./src/screens/FailedResultsScreen";
+import EmailVoucherScreen from "./src/screens/EmailVoucherScreen";
+import VoucherSentScreen from "./src/screens/VoucherSentScreen";
 
 import { PlayerRole } from "./src/types/PlayerRole";
 import { GameSession } from "./src/types/GameSession";
@@ -23,26 +25,36 @@ import {
   submitGuess,
   advanceToNextRound,
   submitTimeout,
+  resetGameSession,
 } from "./src/services/gameSessionService";
 
 type ScreenSlot = "screen1" | "screen2";
 
 export default function App() {
   const [playerRole, setPlayerRole] = useState<PlayerRole | null>(null);
-  const [session, setSession] = useState<GameSession | null>(null);
-  const [screenSlot, setScreenSlot] = useState<ScreenSlot | null>(null);
-  const handleTimeout = async () => {
-    await submitTimeout();
-  };
 
-  // Listen for live Firestore changes
+  const [session, setSession] = useState<GameSession | null>(null);
+
+  const [screenSlot, setScreenSlot] = useState<ScreenSlot | null>(null);
+
+  const [voucherView, setVoucherView] = useState<
+    "options" | "email" | "sent"
+  >("options");
+
+  // --------------------------------------------------
+  // LIVE FIRESTORE SESSION
+  // --------------------------------------------------
+
   useEffect(() => {
     const unsubscribe = subscribeToGameSession(setSession);
 
     return unsubscribe;
   }, []);
 
-  // Give this simulator a permanent screen identity
+  // --------------------------------------------------
+  // PERMANENT SCREEN IDENTITY
+  // --------------------------------------------------
+
   useEffect(() => {
     const assignScreen = async () => {
       const savedSlot = await AsyncStorage.getItem("screenSlot");
@@ -63,7 +75,10 @@ export default function App() {
     assignScreen();
   }, []);
 
-  // Restore this screen's player role after an Expo refresh
+  // --------------------------------------------------
+  // RESTORE PLAYER ROLE AFTER EXPO REFRESH
+  // --------------------------------------------------
+
   useEffect(() => {
     const loadPlayerRole = async () => {
       const savedRole = await AsyncStorage.getItem("playerRole");
@@ -75,6 +90,10 @@ export default function App() {
 
     loadPlayerRole();
   }, []);
+
+  // --------------------------------------------------
+  // INITIALIZE GAME AFTER BOTH LANGUAGES ARE CHOSEN
+  // --------------------------------------------------
 
   useEffect(() => {
     const startGame = async () => {
@@ -98,9 +117,15 @@ export default function App() {
     startGame();
   }, [session, playerRole]);
 
+  // --------------------------------------------------
+  // CLEAR OLD PLAYER ROLE FOR A FRESH GAME
+  // --------------------------------------------------
+
   useEffect(() => {
     const resetSavedPlayerRole = async () => {
-      if (!session) return;
+      if (!session) {
+        return;
+      }
 
       const sessionIsFresh =
         !session.player1Connected &&
@@ -113,20 +138,25 @@ export default function App() {
 
       if (sessionIsFresh) {
         await AsyncStorage.removeItem("playerRole");
+
         setPlayerRole(null);
+        setVoucherView("options");
       }
     };
 
     resetSavedPlayerRole();
   }, [session]);
 
-  // Wait until Firestore and screen identity are ready
+  // --------------------------------------------------
+  // WAIT UNTIL FIRESTORE + SCREEN SLOT ARE READY
+  // --------------------------------------------------
+
   if (!session || !screenSlot) {
     return null;
   }
 
   // --------------------------------------------------
-  // SCREEN / ORDER INFORMATION
+  // ORDER INFORMATION
   // --------------------------------------------------
 
   const orderNumber =
@@ -182,22 +212,17 @@ export default function App() {
         ? session.player1Language
         : "";
 
-  const bothLanguagesSelected =
-    session.player1Language !== "" &&
-    session.player2Language !== "";
-
   // --------------------------------------------------
   // RECEIPT SCAN
   // --------------------------------------------------
 
   const handleVerifyReceipt = async () => {
-    // This screen already has a player assigned
     if (playerRole) {
       return;
     }
 
-    // First scanner becomes player1.
-    // Second scanner becomes player2.
+    // First scanner = Player 1
+    // Second scanner = Player 2
     const claimedRole = await claimPlayerRole();
 
     if (!claimedRole) {
@@ -206,8 +231,10 @@ export default function App() {
 
     setPlayerRole(claimedRole);
 
-    // Remember the player's role if Expo refreshes
-    await AsyncStorage.setItem("playerRole", claimedRole);
+    await AsyncStorage.setItem(
+      "playerRole",
+      claimedRole
+    );
 
     if (claimedRole === "player1") {
       await updateGameSession({
@@ -221,7 +248,7 @@ export default function App() {
   };
 
   // --------------------------------------------------
-  // START GAME FROM INSTRUCTIONS
+  // START FROM INSTRUCTIONS
   // --------------------------------------------------
 
   const handleStart = async () => {
@@ -236,8 +263,12 @@ export default function App() {
   // LANGUAGE CONFIRMATION
   // --------------------------------------------------
 
-  const handleSelectLanguage = async (language: string) => {
-    if (!playerRole) return;
+  const handleSelectLanguage = async (
+    language: string
+  ) => {
+    if (!playerRole) {
+      return;
+    }
 
     const success = await confirmPlayerLanguage(
       playerRole,
@@ -245,16 +276,22 @@ export default function App() {
     );
 
     if (!success) {
-      console.log("That language was already taken.");
+      console.log(
+        "That language was already taken."
+      );
     }
   };
 
-  // ==================================================
-  // SCREEN FLOW
-  // ==================================================
+  // --------------------------------------------------
+  // GAMEPLAY
+  // --------------------------------------------------
 
-  const handleGuess = async (illustrationId: string) => {
-    const result = await submitGuess(illustrationId);
+  const handleGuess = async (
+    illustrationId: string
+  ) => {
+    const result =
+      await submitGuess(illustrationId);
+
     console.log("Guess result:", result);
   };
 
@@ -262,60 +299,169 @@ export default function App() {
     await advanceToNextRound();
   };
 
-  // Player scanned first and is waiting for Player 2
-  if (playerRole && receiptVerified && !bothReceiptsVerified) {
+  const handleTimeout = async () => {
+    await submitTimeout();
+  };
+
+  // --------------------------------------------------
+  // RESET FOR NEXT CUSTOMERS
+  // --------------------------------------------------
+
+  const handleResetGame = async () => {
+    await resetGameSession();
+
+    // Remove only the customer's temporary identity.
+    // Keep screenSlot so each physical screen remembers
+    // whether it is screen1 or screen2.
+    await AsyncStorage.removeItem("playerRole");
+
+    setPlayerRole(null);
+    setVoucherView("options");
+  };
+
+  // ==================================================
+  // SCREEN FLOW
+  // ==================================================
+
+  // --------------------------------------------------
+  // FIRST PLAYER HAS SCANNED
+  // --------------------------------------------------
+
+  if (
+    playerRole &&
+    receiptVerified &&
+    !bothReceiptsVerified
+  ) {
     return <WaitingScreen />;
   }
 
-  if (session.gameFinished && session.correctRounds < 6) {
+  // --------------------------------------------------
+  // FAILED GAME RESULTS
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds < 6
+  ) {
     return (
       <FailedResultsScreen
         correctRounds={session.correctRounds}
         totalRounds={6}
         roundHistory={session.roundHistory}
-        onDone={() => {}}
+        onDone={handleResetGame}
       />
     );
   }
 
-  if (session.gameFinished && session.correctRounds === 6) {
+  // --------------------------------------------------
+  // VOUCHER SENT CONFIRMATION
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds === 6 &&
+    voucherView === "sent"
+  ) {
+    return (
+      <VoucherSentScreen
+        onDone={handleResetGame}
+      />
+    );
+  }
+
+  // --------------------------------------------------
+  // EMAIL VOUCHER
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds === 6 &&
+    voucherView === "email"
+  ) {
+    return (
+      <EmailVoucherScreen
+        onSend={(email) => {
+          // Temporary until the real email backend
+          // is connected.
+          console.log(
+            "Send voucher to:",
+            email
+          );
+
+          setVoucherView("sent");
+        }}
+        onCancel={() => {
+          setVoucherView("options");
+        }}
+      />
+    );
+  }
+
+  // --------------------------------------------------
+  // VOUCHER OPTIONS
+  // --------------------------------------------------
+
+  if (
+    session.gameFinished &&
+    session.correctRounds === 6
+  ) {
     return (
       <ResultsScreen
         correctRounds={session.correctRounds}
         totalRounds={6}
+        onEmailVoucher={() => {
+          setVoucherView("email");
+        }}
+        onPrintVoucher={() => {
+          console.log("Print voucher");
+        }}
       />
     );
   }
 
-  // Both players have started and selected languages
-  if (session.gameStarted && playerRole) {
+  // --------------------------------------------------
+  // ACTIVE GAME
+  // --------------------------------------------------
+
+  if (
+    session.gameStarted &&
+    playerRole
+  ) {
     return (
       <GameScreen
         playerRole={playerRole}
         reader={session.reader}
         guesser={session.guesser}
         currentRound={session.currentRound}
-        onGuess={handleGuess}
         roundResult={session.roundResult}
-        onNextRound={handleNextRound}
         roundStartedAt={session.roundStartedAt}
+        onGuess={handleGuess}
+        onNextRound={handleNextRound}
         onTimeout={handleTimeout}
       />
     );
   }
 
-  // Both players pressed Start -> language selection
+  // --------------------------------------------------
+  // LANGUAGE SELECTION
+  // --------------------------------------------------
+
   if (bothPlayersStarted) {
     return (
       <LanguageSelectionScreen
         confirmedLanguage={selectedLanguage}
         unavailableLanguage={unavailableLanguage}
-        onConfirmLanguage={handleSelectLanguage}
+        onConfirmLanguage={
+          handleSelectLanguage
+        }
       />
     );
   }
 
-  // Both receipts verified -> instructions
+  // --------------------------------------------------
+  // INSTRUCTIONS
+  // --------------------------------------------------
+
   if (bothReceiptsVerified) {
     return (
       <InstructionsScreen
@@ -325,8 +471,11 @@ export default function App() {
     );
   }
 
-  // Default opening screen:
-  // show this physical screen's order number
+  // --------------------------------------------------
+  // DEFAULT:
+  // CALL ORDER NUMBER + SCAN RECEIPT
+  // --------------------------------------------------
+
   return (
     <OrderScreen
       orderNumber={orderNumber}

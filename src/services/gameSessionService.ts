@@ -374,3 +374,39 @@ export async function advanceToNextRound() {
     });
   });
 }
+
+export async function resetGameSession() {
+  await updateDoc(sessionRef, {
+    player1Connected: false,
+    player2Connected: false,
+
+    player1ReceiptVerified: false,
+    player2ReceiptVerified: false,
+
+    player1Started: false,
+    player2Started: false,
+
+    player1Language: "",
+    player2Language: "",
+
+    firstStarter: null,
+
+    gameStarted: false,
+    gameFinished: false,
+
+    currentRound: 1,
+    currentTurn: "player1",
+
+    reader: "player2",
+    guesser: "player1",
+
+    currentPhraseId: "phrase001",
+    correctIllustrationId: "illustration001",
+
+    roundResult: "playing",
+    roundStartedAt: 0,
+
+    correctRounds: 0,
+    roundHistory: [],
+  });
+}
