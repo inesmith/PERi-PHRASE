@@ -1,7 +1,13 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { RoundHistoryItem } from "../types/GameSession";
-import { gameRounds } from "../data/gameRounds";
+import { languageRoundSets } from "../data/gameRounds";
 
 type FailedResultsScreenProps = {
   correctRounds: number;
@@ -20,6 +26,11 @@ export default function FailedResultsScreen({
     (item) => item.result !== "correct"
   );
 
+  const allRoundSets = [
+    ...languageRoundSets.Afrikaans,
+    ...languageRoundSets.isiZulu,
+  ];
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Game Complete</Text>
@@ -33,19 +44,22 @@ export default function FailedResultsScreen({
       </Text>
 
       {missedRounds.map((item, index) => {
-        const roundData = gameRounds[item.roundNumber - 1];
+        const roundData = allRoundSets.find(
+          (round) => round.id === item.phraseId
+        );
 
         const correctIllustration =
           roundData?.illustrations.find(
             (illustration) =>
-              illustration.id === roundData.correctIllustrationId
+              illustration.id ===
+              roundData.correctIllustrationId
           );
 
         return (
           <View
             key={`${item.roundNumber}-${item.phraseId}-${index}`}
             style={styles.resultCard}
-            >
+          >
             <Text style={styles.roundTitle}>
               Round {item.roundNumber}
             </Text>
@@ -62,14 +76,20 @@ export default function FailedResultsScreen({
             </Text>
 
             <Text style={styles.resultText}>
-              Correct illustration: {correctIllustration?.label}
+              Correct illustration:{" "}
+              {correctIllustration?.label}
             </Text>
           </View>
         );
       })}
 
-      <Pressable style={styles.button} onPress={onDone}>
-        <Text style={styles.buttonText}>Done</Text>
+      <Pressable
+        style={styles.button}
+        onPress={onDone}
+      >
+        <Text style={styles.buttonText}>
+          Done
+        </Text>
       </Pressable>
     </ScrollView>
   );

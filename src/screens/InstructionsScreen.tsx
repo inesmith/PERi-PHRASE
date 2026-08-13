@@ -1,4 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+} from "react-native";
 
 type InstructionsScreenProps = {
   hasStarted: boolean;
@@ -10,39 +17,68 @@ export default function InstructionsScreen({
   onStart,
 }: InstructionsScreenProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>How to Play</Text>
+    <ImageBackground
+      source={require("../assets/background/instructions-background.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Image
+            source={require("../assets/phrases/logo/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+        />
+        <Text style={styles.title}>How to Play</Text>
 
-      <Text style={styles.instruction}>
-        1. Choose a language.
-      </Text>
-
-      <Text style={styles.instruction}>
-        2. One player reads a phrase aloud.
-      </Text>
-
-      <Text style={styles.instruction}>
-        3. The other player selects the matching illustration.
-      </Text>
-
-      <Text style={styles.instruction}>
-        4. You have 30 seconds per round.
-      </Text>
-
-      {!hasStarted ? (
-        <Pressable style={styles.button} onPress={onStart}>
-            <Text style={styles.buttonText}>Start Game</Text>
-        </Pressable>
-        ) : (
-        <Text style={styles.waiting}>
-            Waiting for the other player...
+        <Text style={styles.instruction}>
+          1. Choose a language.
         </Text>
+
+        <Text style={styles.instruction}>
+          2. One player reads a phrase aloud.
+        </Text>
+
+        <Text style={styles.instruction}>
+          3. The other player selects the matching illustration.
+        </Text>
+
+        <Text style={styles.instruction}>
+          4. You have 30 seconds per round.
+        </Text>
+
+        {!hasStarted ? (
+          <Pressable
+            style={styles.button}
+            onPress={onStart}
+          >
+            <Text style={styles.buttonText}>
+              Start Game
+            </Text>
+          </Pressable>
+        ) : (
+          <Text style={styles.waiting}>
+            Waiting for the other player...
+          </Text>
         )}
-    </View>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
+  logo: {
+    width: '35%',
+    height: '35%',
+    marginTop: -150,
+    alignItems: "center",
+  },
+
   container: {
     flex: 1,
     justifyContent: "center",
@@ -50,15 +86,18 @@ const styles = StyleSheet.create({
     gap: 16,
     padding: 24,
   },
+
   title: {
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 12,
   },
+
   instruction: {
     fontSize: 20,
     textAlign: "center",
   },
+
   button: {
     marginTop: 20,
     borderWidth: 1,
@@ -66,13 +105,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 28,
   },
+
   buttonText: {
     fontSize: 18,
     fontWeight: "600",
   },
+
   waiting: {
     marginTop: 20,
     fontSize: 20,
     fontWeight: "600",
-    },
+  },
 });

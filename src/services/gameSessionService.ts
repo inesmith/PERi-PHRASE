@@ -10,7 +10,11 @@ import {
   GameSession,
   RoundHistoryItem,
 } from "../types/GameSession";
-import { gameRounds } from "../data/gameRounds";
+import {
+  getGameRound,
+  TOTAL_ROUNDS,
+  PrototypeLanguage,
+} from "../data/gameRounds";
 
 const sessionRef = doc(db, "gameSessions", "session001");
 
@@ -163,15 +167,32 @@ export async function initializeGameRound() {
       throw new Error("First starter has not been set.");
     }
 
-    // First person to press Start gets the illustrations first
-    const guesser = data.firstStarter;
+    // First person to press Start becomes the Reader first
+    const reader = data.firstStarter;
 
-    const reader =
+    const guesser =
       data.firstStarter === "player1"
         ? "player2"
         : "player1";
 
-    const firstRound = gameRounds[0];
+    const guesserLanguage =
+      guesser === "player1"
+        ? data.player1Language
+        : data.player2Language;
+
+    if (
+      guesserLanguage !== "Afrikaans" &&
+      guesserLanguage !== "isiZulu"
+    ) {
+      throw new Error(
+        "Guesser must be using Afrikaans or isiZulu."
+      );
+    }
+
+    const firstRound = getGameRound(
+      1,
+      guesserLanguage
+    );
 
     transaction.update(sessionRef, {
       currentRound: 1,
@@ -342,7 +363,7 @@ export async function advanceToNextRound() {
 
     // Round 6 is finished.
     // The final button now means "View Results".
-    if (data.currentRound >= gameRounds.length) {
+    if (data.currentRound >= TOTAL_ROUNDS) {
       transaction.update(sessionRef, {
         gameFinished: true,
       });
@@ -352,12 +373,28 @@ export async function advanceToNextRound() {
 
     const nextRoundNumber = data.currentRound + 1;
 
-    const nextRoundData =
-      gameRounds[nextRoundNumber - 1];
-
     // Swap Reader and Guesser
     const nextReader = data.guesser;
     const nextGuesser = data.reader;
+
+    const nextGuesserLanguage =
+      nextGuesser === "player1"
+        ? data.player1Language
+        : data.player2Language;
+
+    if (
+      nextGuesserLanguage !== "Afrikaans" &&
+      nextGuesserLanguage !== "isiZulu"
+    ) {
+      throw new Error(
+        "Next guesser must be using Afrikaans or isiZulu."
+      );
+    }
+
+    const nextRoundData = getGameRound(
+      nextRoundNumber,
+      nextGuesserLanguage
+    );
 
     transaction.update(sessionRef, {
       currentRound: nextRoundNumber,
@@ -400,7 +437,7 @@ export async function resetGameSession() {
     reader: "player2",
     guesser: "player1",
 
-    currentPhraseId: "phrase001",
+    currentPhraseId: "",
     correctIllustrationId: "illustration001",
 
     roundResult: "playing",

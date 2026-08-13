@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 
 import { PlayerRole } from "../types/PlayerRole";
-import { gameRounds } from "../data/gameRounds";
+import {
+  getGameRound,
+  TOTAL_ROUNDS,
+  PrototypeLanguage,
+} from "../data/gameRounds";
 
 type GameScreenProps = {
   playerRole: PlayerRole;
@@ -32,14 +36,14 @@ export default function GameScreen({
   const isReader = playerRole === reader;
   const isGuesser = playerRole === guesser;
 
-  const roundData = gameRounds[currentRound - 1];
+  const roundData = getGameRound(
+    currentRound,
+    selectedLanguage as PrototypeLanguage
+  );
 
-  const phraseImage =
-  roundData?.phraseImages?.[
-    selectedLanguage as keyof typeof roundData.phraseImages
-  ];
+  const phraseImage = roundData?.phraseImage;
 
-  const isFinalRound = currentRound === gameRounds.length;
+  const isFinalRound = currentRound === TOTAL_ROUNDS;
 
   const resultButtonLabel = isFinalRound
     ? "View Results"

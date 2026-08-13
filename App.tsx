@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendVoucherEmail } from "./src/services/voucherService";
-import { gameRounds } from "./src/data/gameRounds";
+import { TOTAL_ROUNDS } from "./src/data/gameRounds";
 
 import WaitingScreen from "./src/screens/WaitingScreen";
 import OrderScreen from "./src/screens/OrderScreen";
@@ -48,7 +48,7 @@ export default function App() {
     "options" | "email" | "sent" | "printing" | "printed"
   >("options");
 
-  const totalRounds = gameRounds.length;
+  const totalRounds = TOTAL_ROUNDS;
 
   // --------------------------------------------------
   // LIVE FIRESTORE SESSION
@@ -235,6 +235,11 @@ export default function App() {
       : playerRole === "player2"
         ? session.player1Language
         : "";
+
+  const guesserLanguage =
+    session.guesser === "player1"
+      ? session.player1Language
+      : session.player2Language;
 
   // --------------------------------------------------
   // RECEIPT SCAN
@@ -514,7 +519,7 @@ export default function App() {
         onGuess={handleGuess}
         onNextRound={handleNextRound}
         onTimeout={handleTimeout}
-        selectedLanguage={selectedLanguage}
+        selectedLanguage={guesserLanguage}
       />
     );
   }
