@@ -24,41 +24,53 @@ export default function InstructionsScreen({
     >
       <View style={styles.container}>
         <Image
-            source={require("../assets/phrases/logo/logo.png")}
-            style={styles.logo}
-            resizeMode="contain"
+          source={require("../assets/phrases/logo/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
         />
-        <Text style={styles.title}>How to Play</Text>
 
-        <Text style={styles.instruction}>
-          1. Choose a language.
+        <Text style={styles.title}>Instructions:</Text>
+
+        <Text style={[styles.instruction, styles.instruction1]}>
+          Choose the South African language that you speak.
         </Text>
 
-        <Text style={styles.instruction}>
-          2. One player reads a phrase aloud.
+        <Text style={[styles.instruction, styles.instruction2]}>
+          Read the phrase that appears out loud.
         </Text>
 
-        <Text style={styles.instruction}>
-          3. The other player selects the matching illustration.
+        <Text style={[styles.instruction, styles.instruction3]}>
+          Your partner must choose the corresponding picture on their screen.
         </Text>
 
-        <Text style={styles.instruction}>
-          4. You have 30 seconds per round.
+        <Text style={[styles.instruction, styles.instruction4]}>
+          Once the correct picture is chosen, the game will automatically swap your screens.
         </Text>
 
         {!hasStarted ? (
           <Pressable
-            style={styles.button}
+            style={styles.continueButton}
             onPress={onStart}
           >
-            <Text style={styles.buttonText}>
-              Start Game
-            </Text>
+            <Image
+              source={require("../assets/buttons/continue.png")}
+              style={styles.continueImage}
+              resizeMode="contain"
+            />
           </Pressable>
         ) : (
-          <Text style={styles.waiting}>
-            Waiting for the other player...
-          </Text>
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waiting}>
+              Waiting for the 
+            </Text>
+
+            <Text style={styles.waiting}>
+              <Text style={styles.waitingHighlight}>
+                second player
+              </Text>
+              {" "} to continue.
+            </Text>
+          </View>
         )}
       </View>
     </ImageBackground>
@@ -72,48 +84,81 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  logo: {
-    width: '35%',
-    height: '35%',
-    marginTop: -150,
+  container: {
+    flex: 1,
     alignItems: "center",
   },
 
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-    padding: 24,
+  logo: {
+    position: "absolute",
+    top: 0,
+    width: "35%",
+    height: "35%",
+    transform: [{ rotate: "-3deg" }],
   },
 
   title: {
-    fontSize: 32,
+    position: "absolute",
+    top: 510,
+    fontSize: 96,
     fontWeight: "bold",
-    marginBottom: 12,
+    fontFamily: "Nandos-Regular",
+    marginLeft: -520,
   },
 
   instruction: {
-    fontSize: 20,
-    textAlign: "center",
+    position: "absolute",
+    width: 1500,
+    fontSize: 40,
+    fontWeight: "400",
+    textAlign: "left",
+    marginLeft: 300,
+    marginTop: 5,
   },
 
-  button: {
-    marginTop: 20,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 28,
+  instruction1: {
+    top: 700,
   },
 
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "600",
+  instruction2: {
+    top: 805,
+  },
+
+  instruction3: {
+    top: 920,
+  },
+
+  instruction4: {
+    top: 1045,
+  },
+
+  continueButton: {
+    position: "absolute",
+    bottom: 120,
+    alignSelf: "center",
+  },
+
+  continueImage: {
+    width: 820,
+    height: 160,
+    marginBottom: 100,
+  },
+
+  waitingContainer: {
+    position: "absolute",
+    bottom: 250,
+    alignItems: "center",
   },
 
   waiting: {
-    marginTop: 20,
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 48,
+    fontWeight: "400",
+    textAlign: "center",
+    lineHeight: 58,
+  },
+
+  waitingHighlight: {
+    color: "#E32B3D",
+    fontWeight: "bold",
   },
 });
