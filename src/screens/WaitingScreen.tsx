@@ -22,12 +22,15 @@ export default function WaitingScreen() {
 
         <View style={styles.instructionContainer}>
           <Text style={styles.instructionText}>
-            Waiting for the 
+            Waiting for 
           </Text>
 
+        <Text style={styles.instructionText}>
+                    the{" "} 
           <Text style={[styles.instructionText, styles.highlightText]}>
             second player...
           </Text>
+        </Text>
         </View>
       </View>
     </ImageBackground>

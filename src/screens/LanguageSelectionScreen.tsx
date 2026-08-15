@@ -74,22 +74,6 @@ export default function LanguageSelectionScreen({
     }
   }, [temporarySelection, unavailableLanguage]);
 
-  if (confirmedLanguage !== "") {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Language confirmed!</Text>
-
-        <Text style={styles.waitingText}>
-          You chose {confirmedLanguage}
-        </Text>
-
-        <Text style={styles.waitingText}>
-          Waiting for the other player to choose a language...
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <ImageBackground
       source={require("../assets/background/language-background.png")}

@@ -15,6 +15,7 @@ export type GameRound = {
   illustrations: {
     id: string;
     label: string;
+    image?: ImageSourcePropType;
   }[];
 
   correctIllustrationId: string;
@@ -27,22 +28,22 @@ export const languageRoundSets: Record<
   Afrikaans: [
     {
   id: "afrikaans001",
-  phrase: "Afrikaans phrase 1",
+  phrase: "Wat brand twee keer?",
 
   phraseImage: require(
-    "../assets/phrases/afrikaans/afrikaans-1.png"
+    "../assets/phrases/afrikaans/afrikaans-3.png"
   ),
 
   illustrations: [
-        { id: "illustration001", label: "Illustration 1" },
-        { id: "illustration002", label: "Illustration 2" },
-        { id: "illustration003", label: "Illustration 3" },
-        { id: "illustration004", label: "Illustration 4" },
-        { id: "illustration005", label: "Illustration 5" },
-        { id: "illustration006", label: "Illustration 6" },
-        { id: "illustration007", label: "Illustration 7" },
-        { id: "illustration008", label: "Illustration 8" },
-        { id: "illustration009", label: "Illustration 9" },
+        { id: "illustration001", label: "Chilli", image: require("../assets/images/Chili.png") },
+        { id: "illustration002", label: "BucketHat", image: require("../assets/images/BucketHat.png") },
+        { id: "illustration003", label: "Braai", image: require("../assets/images/Braai.png") },
+        { id: "illustration004", label: "Flame", image: require("../assets/images/Flame.png") },
+        { id: "illustration005", label: "Heart", image: require("../assets/images/Heart.png") },
+        { id: "illustration006", label: "Vuvuzela", image: require("../assets/images/Vuvuzela.png") },
+        { id: "illustration007", label: "Springbok", image: require("../assets/images/Springbok.png") },
+        { id: "illustration008", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
+        { id: "illustration009", label: "FlipFlops", image: require("../assets/images/FlipFlops.png") },
       ],
 
       correctIllustrationId: "illustration001",
@@ -50,48 +51,48 @@ export const languageRoundSets: Record<
 
     {
       id: "afrikaans002",
-      phrase: "Afrikaans phrase 2",
+      phrase: "Suid-Afrika se vlieënde wekker",
 
       phraseImage: require(
         "../assets/phrases/afrikaans/afrikaans-2.png"
       ),
 
       illustrations: [
-        { id: "illustration019", label: "Illustration 19" },
-        { id: "illustration020", label: "Illustration 20" },
-        { id: "illustration021", label: "Illustration 21" },
-        { id: "illustration022", label: "Illustration 22" },
-        { id: "illustration023", label: "Illustration 23" },
-        { id: "illustration024", label: "Illustration 24" },
-        { id: "illustration025", label: "Illustration 25" },
-        { id: "illustration026", label: "Illustration 26" },
-        { id: "illustration027", label: "Illustration 27" },
+        { id: "illustration019", label: "Taxi", image: require("../assets/images/Taxi.png") },
+        { id: "illustration020", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
+        { id: "illustration021", label: "Flame", image: require("../assets/images/Flame.png") },
+        { id: "illustration022", label: "Braai", image: require("../assets/images/Braai.png") },
+        { id: "illustration023", label: "Heart", image: require("../assets/images/Heart.png") },
+        { id: "illustration024", label: "BeachBall", image: require("../assets/images/BeachBall.png") },
+        { id: "illustration025", label: "FishingRod", image: require("../assets/images/FishingRod.png") },
+        { id: "illustration026", label: "Vuvuzela", image: require("../assets/images/Vuvuzela.png") },
+        { id: "illustration027", label: "Hadeda", image: require("../assets/images/Hadeda.png") },
       ],
 
-      correctIllustrationId: "illustration022",
+      correctIllustrationId: "illustration027",
     },
 
     {
       id: "afrikaans003",
-      phrase: "Afrikaans phrase 3",
+      phrase: "Gooi my uit en wag vir 'n byt",
 
       phraseImage: require(
-        "../assets/phrases/afrikaans/afrikaans-3.png"
+        "../assets/phrases/afrikaans/afrikaans-1.png"
       ),
 
       illustrations: [
-        { id: "illustration037", label: "Illustration 37" },
-        { id: "illustration038", label: "Illustration 38" },
-        { id: "illustration039", label: "Illustration 39" },
-        { id: "illustration040", label: "Illustration 40" },
-        { id: "illustration041", label: "Illustration 41" },
-        { id: "illustration042", label: "Illustration 42" },
-        { id: "illustration043", label: "Illustration 43" },
-        { id: "illustration044", label: "Illustration 44" },
-        { id: "illustration045", label: "Illustration 45" },
+        { id: "illustration037", label: "Springbok", image: require("../assets/images/Springbok.png") },
+        { id: "illustration038", label: "Chilli", image: require("../assets/images/Chili.png") },
+        { id: "illustration039", label: "FishingRod", image: require("../assets/images/FishingRod.png") },
+        { id: "illustration040", label: "FlipFlops", image: require("../assets/images/FlipFlops.png") },
+        { id: "illustration041", label: "Taxi", image: require("../assets/images/Taxi.png") },
+        { id: "illustration042", label: "BucketHat", image: require("../assets/images/BucketHat.png") },
+        { id: "illustration043", label: "BeachBall", image: require("../assets/images/BeachBall.png") },
+        { id: "illustration044", label: "Vuvuzela", image: require("../assets/images/Vuvuzela.png") },
+        { id: "illustration045", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
       ],
 
-      correctIllustrationId: "illustration042",
+      correctIllustrationId: "illustration039",
     },
   ],
 
@@ -101,18 +102,18 @@ export const languageRoundSets: Record<
       phrase: "isiZulu phrase 1",
 
       illustrations: [
-        { id: "illustration010", label: "Illustration 10" },
-        { id: "illustration011", label: "Illustration 11" },
-        { id: "illustration012", label: "Illustration 12" },
-        { id: "illustration013", label: "Illustration 13" },
-        { id: "illustration014", label: "Illustration 14" },
-        { id: "illustration015", label: "Illustration 15" },
-        { id: "illustration016", label: "Illustration 16" },
-        { id: "illustration017", label: "Illustration 17" },
-        { id: "illustration018", label: "Illustration 18" },
+        { id: "illustration010", label: "Vuvuzela", image: require("../assets/images/Vuvuzela.png") },
+        { id: "illustration011", label: "BeachBall", image: require("../assets/images/BeachBall.png") },
+        { id: "illustration012", label: "FlipFlops", image: require("../assets/images/FlipFlops.png") },
+        { id: "illustration013", label: "BucketHat", image: require("../assets/images/BucketHat.png") },
+        { id: "illustration014", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
+        { id: "illustration015", label: "Flame", image: require("../assets/images/Flame.png") },
+        { id: "illustration016", label: "FishingRod", image: require("../assets/images/FishingRod.png") },
+        { id: "illustration017", label: "Heart", image: require("../assets/images/Heart.png") },
+        { id: "illustration018", label: "Springbok", image: require("../assets/images/Springbok.png") },
       ],
 
-      correctIllustrationId: "illustration013",
+      correctIllustrationId: "illustration010",
     },
 
     {
@@ -120,18 +121,18 @@ export const languageRoundSets: Record<
       phrase: "isiZulu phrase 2",
 
       illustrations: [
-        { id: "illustration028", label: "Illustration 28" },
-        { id: "illustration029", label: "Illustration 29" },
-        { id: "illustration030", label: "Illustration 30" },
-        { id: "illustration031", label: "Illustration 31" },
-        { id: "illustration032", label: "Illustration 32" },
-        { id: "illustration033", label: "Illustration 33" },
-        { id: "illustration034", label: "Illustration 34" },
-        { id: "illustration035", label: "Illustration 35" },
-        { id: "illustration036", label: "Illustration 36" },
+        { id: "illustration028", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
+        { id: "illustration029", label: "Springbok", image: require("../assets/images/Springbok.png") },
+        { id: "illustration030", label: "Flame", image: require("../assets/images/Flame.png") },
+        { id: "illustration031", label: "Braai", image: require("../assets/images/Braai.png") },
+        { id: "illustration032", label: "Chilli", image: require("../assets/images/Chili.png") },
+        { id: "illustration033", label: "Taxi", image: require("../assets/images/Taxi.png") },
+        { id: "illustration034", label: "BeachBall", image: require("../assets/images/BeachBall.png") },
+        { id: "illustration035", label: "Hadeda", image: require("../assets/images/Hadeda.png") },
+        { id: "illustration036", label: "FlipFlops", image: require("../assets/images/FlipFlops.png") },
       ],
 
-      correctIllustrationId: "illustration036",
+      correctIllustrationId: "illustration033",
     },
 
     {
@@ -139,18 +140,18 @@ export const languageRoundSets: Record<
       phrase: "isiZulu phrase 3",
 
       illustrations: [
-        { id: "illustration046", label: "Illustration 46" },
-        { id: "illustration047", label: "Illustration 47" },
-        { id: "illustration048", label: "Illustration 48" },
-        { id: "illustration049", label: "Illustration 49" },
-        { id: "illustration050", label: "Illustration 50" },
-        { id: "illustration051", label: "Illustration 51" },
-        { id: "illustration052", label: "Illustration 52" },
-        { id: "illustration053", label: "Illustration 53" },
-        { id: "illustration054", label: "Illustration 54" },
+        { id: "illustration046", label: "Heart", image: require("../assets/images/Heart.png") },
+        { id: "illustration047", label: "BucketHat", image: require("../assets/images/BucketHat.png") },
+        { id: "illustration048", label: "Braai", image: require("../assets/images/Braai.png") },
+        { id: "illustration049", label: "Hadeda", image: require("../assets/images/Hadeda.png") },
+        { id: "illustration050", label: "Flame", image: require("../assets/images/Flame.png") },
+        { id: "illustration051", label: "Chilli", image: require("../assets/images/Chili.png") },
+        { id: "illustration052", label: "FishingRod", image: require("../assets/images/FishingRod.png") },
+        { id: "illustration053", label: "FlipFlops", image: require("../assets/images/FlipFlops.png") },
+        { id: "illustration054", label: "BeachBall", image: require("../assets/images/BeachBall.png") },
       ],
 
-      correctIllustrationId: "illustration049",
+      correctIllustrationId: "illustration047",
     },
   ],
 };
