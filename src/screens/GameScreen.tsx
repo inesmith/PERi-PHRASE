@@ -51,22 +51,58 @@ export default function GameScreen({
   const phraseImage = roundData?.phraseImage;
 
   // --------------------------------------------------
+  // READER PHRASE IMAGE
+  // --------------------------------------------------
+
+  const getReaderPhraseImage = () => {
+    switch (roundData?.id) {
+      case "isizulu001":
+        return require("../assets/phrases/zulu/Full-Taxi.png");
+
+      case "isizulu002":
+        return require("../assets/phrases/zulu/zulu-vuvuzela.png");
+
+      case "isizulu003":
+        return require("../assets/phrases/zulu/zulu-buckethat.png");
+
+      default:
+        return phraseImage;
+    }
+  };
+
+  const readerPhraseImage = getReaderPhraseImage();
+
+  // --------------------------------------------------
   // IMAGE SHOWN AFTER THE READER FINISHES THE ROUND
   // --------------------------------------------------
 
   const getReaderResultPhraseImage = () => {
     switch (roundData?.id) {
-      // Wat brand twee keer
+      // -----------------------------------------------
+      // AFRIKAANS READER -> ZULU RESULT
+      // -----------------------------------------------
+
       case "afrikaans001":
         return require("../assets/phrases/zulu/zulu-chilli.png");
 
-      // Suid-Afrika se vlieende wekker
       case "afrikaans002":
         return require("../assets/phrases/zulu/zulu-hadeda.png");
 
-      // Gooi my uit en wag vir 'n byt
       case "afrikaans003":
         return require("../assets/phrases/zulu/zulu-fishing.png");
+
+      // -----------------------------------------------
+      // ZULU READER -> AFRIKAANS RESULT
+      // -----------------------------------------------
+
+      case "isizulu001":
+        return require("../assets/phrases/afrikaans/zulu-taxi.png");
+
+      case "isizulu002":
+        return require("../assets/phrases/afrikaans/zulu-vuvuzela.png");
+
+      case "isizulu003":
+        return require("../assets/phrases/afrikaans/zulu-buckethat.png");
 
       default:
         return phraseImage;
@@ -128,7 +164,7 @@ export default function GameScreen({
       );
 
       const remaining = Math.max(
-        1000 - elapsedSeconds,
+        30 - elapsedSeconds,
         0
       );
 
@@ -207,12 +243,20 @@ export default function GameScreen({
             </>
           ) : (
             <>
-              <Text style={styles.role}>
-                Correct!
+              <Text style={styles.guesserResultTitle}>
+                PERi-FECT!
               </Text>
 
-              <Text style={styles.instruction}>
-                Nice one — you got the right illustration.
+              {correctIllustration?.image && (
+                <Image
+                  source={correctIllustration.image}
+                  style={styles.guesserCorrectImage}
+                  resizeMode="contain"
+                />
+              )}
+
+              <Text style={styles.phrase}>
+                {roundData?.phrase}
               </Text>
             </>
           )}
@@ -294,17 +338,20 @@ export default function GameScreen({
             </>
           ) : (
             <>
-              <Text style={styles.role}>
-                Not quite!
+              <Text style={styles.guesserResultTitle}>
+                Eish, the flavour was off!
               </Text>
 
-              <Text style={styles.instruction}>
-                That was the wrong illustration.
-              </Text>
+              {correctIllustration?.image && (
+                <Image
+                  source={correctIllustration.image}
+                  style={styles.guesserCorrectImage}
+                  resizeMode="contain"
+                />
+              )}
 
-              <Text style={styles.correctAnswer}>
-                Correct answer:{" "}
-                {correctIllustration?.label}
+              <Text style={styles.phrase}>
+                {roundData?.phrase}
               </Text>
             </>
           )}
@@ -386,12 +433,20 @@ export default function GameScreen({
             </>
           ) : (
             <>
-              <Text style={styles.role}>
-                Time&apos;s up!
+              <Text style={styles.guesserResultTitle}>
+                Ooo, things got a little too spicy!
               </Text>
 
-              <Text style={styles.instruction}>
-                No answer was selected in time.
+              {correctIllustration?.image && (
+                <Image
+                  source={correctIllustration.image}
+                  style={styles.guesserCorrectImage}
+                  resizeMode="contain"
+                />
+              )}
+
+              <Text style={styles.phrase}>
+                {roundData?.phrase}
               </Text>
             </>
           )}
@@ -437,12 +492,8 @@ export default function GameScreen({
         resizeMode="stretch"
       >
         <View style={styles.gridContent}>
-          <Text style={styles.timer}>
+          <Text style={[styles.timer, styles.gridTimer]}>
             {timeLeft}s
-          </Text>
-
-          <Text style={styles.round}>
-            Round {currentRound}
           </Text>
 
           <View style={styles.illustrationGrid}>
@@ -515,17 +566,17 @@ export default function GameScreen({
 
           <View style={styles.readerInstructionContainer}>
             <Text style={styles.readerInstruction}>
-              Read this phrase to your teammate. Try your
+              Read this phrase out loud
             </Text>
 
             <Text style={styles.readerInstruction}>
-              best with pronunciation!
+              as best you can!
             </Text>
           </View>
 
-          {phraseImage ? (
+          {readerPhraseImage ? (
             <Image
-              source={phraseImage}
+              source={readerPhraseImage}
               style={styles.phraseImage}
               resizeMode="contain"
             />
@@ -564,14 +615,15 @@ const styles = StyleSheet.create({
   },
 
   timer: {
-    fontSize: 28,
+    fontSize: 50,
     fontWeight: "bold",
     marginBottom: 16,
   },
 
   round: {
-    fontSize: 24,
+    fontSize: 35,
     marginBottom: 24,
+    color: "#E32B3D",
   },
 
   role: {
@@ -586,15 +638,14 @@ const styles = StyleSheet.create({
   },
 
   phrase: {
-    fontSize: 36,
-    fontWeight: "bold",
+    fontSize: 50,
     textAlign: "center",
     marginTop: 24,
   },
 
   phraseImage: {
-    width: 1500,
-    height: 600,
+    width: 1250,
+    height: 500,
     marginTop: 24,
   },
 
@@ -624,63 +675,63 @@ const styles = StyleSheet.create({
   illustration1: {
     transform: [
       { translateX: -63 },
-      { translateY: -55 },
+      { translateY: -5 },
     ],
   },
 
   illustration2: {
     transform: [
       { translateX: 3 },
-      { translateY: -55 },
+      { translateY: -5 },
     ],
   },
 
   illustration3: {
     transform: [
       { translateX: 63 },
-      { translateY: -55 },
+      { translateY: -5 },
     ],
   },
 
   illustration4: {
     transform: [
       { translateX: -63 },
-      { translateY: 7 },
+      { translateY: 58 },
     ],
   },
 
   illustration5: {
     transform: [
       { translateX: 0 },
-      { translateY: 7 },
+      { translateY: 58 },
     ],
   },
 
   illustration6: {
     transform: [
       { translateX: 63 },
-      { translateY: 7 },
+      { translateY: 58 },
     ],
   },
 
   illustration7: {
     transform: [
       { translateX: -63 },
-      { translateY: 67 },
+      { translateY: 118 },
     ],
   },
 
   illustration8: {
     transform: [
       { translateX: 0 },
-      { translateY: 67 },
+      { translateY: 118 },
     ],
   },
 
   illustration9: {
     transform: [
       { translateX: 63 },
-      { translateY: 67 },
+      { translateY: 118 },
     ],
   },
 
@@ -784,5 +835,36 @@ const styles = StyleSheet.create({
   nextButtonImage: {
     width: 820,
     height: 160,
+  },
+
+  guesserResultTitle: {
+    fontSize: 80,
+    textAlign: "center",
+    marginBottom: 30,
+    fontFamily: "Nandos-Regular",
+  },
+
+  guesserResultLabel: {
+    fontSize: 40,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: 15,
+    marginBottom: 10,
+  },
+
+  guesserPhraseImage: {
+    width: 900,
+    height: 300,
+  },
+
+  guesserCorrectImage: {
+    width: 360,
+    height: 360,
+  },
+
+  gridTimer: {
+    position: "absolute",
+    top: 45,
+    alignSelf: "center",
   },
 });

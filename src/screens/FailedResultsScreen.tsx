@@ -1,152 +1,90 @@
 import {
-  Pressable,
-  ScrollView,
+  ImageBackground,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-
-import { RoundHistoryItem } from "../types/GameSession";
-import { languageRoundSets } from "../data/gameRounds";
+import { useEffect } from "react";
 
 type FailedResultsScreenProps = {
   correctRounds: number;
   totalRounds: number;
-  roundHistory: RoundHistoryItem[];
+  roundHistory: any[];
   onDone: () => void;
 };
 
 export default function FailedResultsScreen({
-  correctRounds,
-  totalRounds,
-  roundHistory,
   onDone,
 }: FailedResultsScreenProps) {
-  const missedRounds = roundHistory.filter(
-    (item) => item.result !== "correct"
-  );
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onDone();
+    }, 5000);
 
-  const allRoundSets = [
-    ...languageRoundSets.Afrikaans,
-    ...languageRoundSets.isiZulu,
-  ];
+    return () => clearTimeout(timeout);
+  }, [onDone]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Game Complete</Text>
-
-      <Text style={styles.score}>
-        {correctRounds} / {totalRounds} correct
-      </Text>
-
-      <Text style={styles.subtitle}>
-        Here are the rounds you missed:
-      </Text>
-
-      {missedRounds.map((item, index) => {
-        const roundData = allRoundSets.find(
-          (round) => round.id === item.phraseId
-        );
-
-        const correctIllustration =
-          roundData?.illustrations.find(
-            (illustration) =>
-              illustration.id ===
-              roundData.correctIllustrationId
-          );
-
-        return (
-          <View
-            key={`${item.roundNumber}-${item.phraseId}-${index}`}
-            style={styles.resultCard}
-          >
-            <Text style={styles.roundTitle}>
-              Round {item.roundNumber}
-            </Text>
-
-            <Text style={styles.resultText}>
-              Result:{" "}
-              {item.result === "timeout"
-                ? "Time ran out"
-                : "Incorrect"}
-            </Text>
-
-            <Text style={styles.resultText}>
-              Phrase: {roundData?.phrase}
-            </Text>
-
-            <Text style={styles.resultText}>
-              Correct illustration:{" "}
-              {correctIllustration?.label}
-            </Text>
-          </View>
-        );
-      })}
-
-      <Pressable
-        style={styles.button}
-        onPress={onDone}
-      >
-        <Text style={styles.buttonText}>
-          Done
+    <ImageBackground
+      source={require("../assets/background/complete-background.png")}
+      style={styles.background}
+      resizeMode="stretch"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>
+          Eish... not quite PERi-fect!
         </Text>
-      </Pressable>
-    </ScrollView>
+
+        <View style={styles.messageContainer}>
+          <Text style={styles.message}>
+            The heat got you this time —
+          </Text>
+
+          <Text style={styles.highlight}>
+            no voucher unlocked.
+          </Text>
+        </View>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
   container: {
-    flexGrow: 1,
-    justifyContent: "center",
+    flex: 1,
     alignItems: "center",
-    padding: 32,
-    gap: 20,
+    justifyContent: "center",
+    padding: 24,
   },
 
   title: {
-    fontSize: 34,
-    fontWeight: "bold",
-  },
-
-  score: {
-    fontSize: 28,
-    fontWeight: "600",
-  },
-
-  subtitle: {
-    fontSize: 20,
+    fontSize: 90,
+    fontFamily: "Nandos-Regular",
     textAlign: "center",
+    marginBottom: 70,
   },
 
-  resultCard: {
-    width: "100%",
-    maxWidth: 800,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 20,
-    gap: 8,
+  messageContainer: {
+    alignItems: "center",
   },
 
-  roundTitle: {
-    fontSize: 22,
+  message: {
+    fontSize: 48,
+    textAlign: "center",
+    lineHeight: 60,
+  },
+
+  highlight: {
+    fontSize: 48,
     fontWeight: "bold",
-  },
-
-  resultText: {
-    fontSize: 18,
-  },
-
-  button: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-  },
-
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "600",
+    color: "#E32B3D",
+    textAlign: "center",
+    lineHeight: 60,
   },
 });

@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendVoucherEmail } from "./src/services/voucherService";
 import { TOTAL_ROUNDS } from "./src/data/gameRounds";
 
-import WaitingScreen from "./src/screens/WaitingScreen";
 import OrderScreen from "./src/screens/OrderScreen";
 import InstructionsScreen from "./src/screens/InstructionsScreen";
 import LanguageSelectionScreen from "./src/screens/LanguageSelectionScreen";
@@ -138,6 +137,7 @@ export default function App() {
 
     startGame();
   }, [session, playerRole]);
+  
 
   // --------------------------------------------------
   // CLEAR OLD PLAYER ROLE FOR A FRESH GAME
@@ -240,6 +240,13 @@ export default function App() {
     session.guesser === "player1"
       ? session.player1Language
       : session.player2Language;
+
+  const otherPlayerHasSelected =
+  playerRole === "player1"
+    ? session.player2Language !== ""
+    : playerRole === "player2"
+      ? session.player1Language !== ""
+      : false;
 
   // --------------------------------------------------
   // RECEIPT SCAN
@@ -351,22 +358,6 @@ export default function App() {
     setPlayerRole(null);
     setVoucherView("options");
   };
-
-  // ==================================================
-  // SCREEN FLOW
-  // ==================================================
-
-  // --------------------------------------------------
-  // FIRST PLAYER HAS SCANNED
-  // --------------------------------------------------
-
-  if (
-    playerRole &&
-    receiptVerified &&
-    !bothReceiptsVerified
-  ) {
-    return <WaitingScreen />;
-  }
 
   // --------------------------------------------------
   // FAILED GAME RESULTS
@@ -480,15 +471,10 @@ export default function App() {
   ) {
     return (
       <ResultsScreen
-        correctRounds={
-          session.correctRounds
-        }
+        correctRounds={session.correctRounds}
         totalRounds={totalRounds}
         onEmailVoucher={() => {
           setVoucherView("email");
-        }}
-        onPrintVoucher={() => {
-          setVoucherView("printing");
         }}
       />
     );
@@ -528,18 +514,13 @@ export default function App() {
   // LANGUAGE SELECTION
   // --------------------------------------------------
 
-  if (bothPlayersStarted) {
+  if (hasStarted) {
     return (
       <LanguageSelectionScreen
-        confirmedLanguage={
-          selectedLanguage
-        }
-        unavailableLanguage={
-          unavailableLanguage
-        }
-        onConfirmLanguage={
-          handleSelectLanguage
-        }
+        confirmedLanguage={selectedLanguage}
+        unavailableLanguage={unavailableLanguage}
+        otherPlayerHasSelected={otherPlayerHasSelected}
+        onConfirmLanguage={handleSelectLanguage}
       />
     );
   }
@@ -551,7 +532,6 @@ export default function App() {
   if (bothReceiptsVerified) {
     return (
       <InstructionsScreen
-        hasStarted={hasStarted}
         onStart={handleStart}
       />
     );
@@ -566,9 +546,7 @@ export default function App() {
     <OrderScreen
       orderNumber={orderNumber}
       receiptVerified={receiptVerified}
-      onVerifyReceipt={
-        handleVerifyReceipt
-      }
+      onVerifyReceipt={handleVerifyReceipt}
     />
   );
 }

@@ -1,4 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ImageBackground,
+  Image,
+} from "react-native";
 
 type VoucherSentScreenProps = {
   onDone: () => void;
@@ -7,26 +14,38 @@ type VoucherSentScreenProps = {
 export default function VoucherSentScreen({
   onDone,
 }: VoucherSentScreenProps) {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onDone();
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [onDone]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Voucher Sent!</Text>
-
-      <Text style={styles.message}>
-        Check your inbox for your voucher.
-      </Text>
-
-      <Text style={styles.message}>
-        Show your voucher at the order desk to collect your sticker pack.
-      </Text>
-
-      <Pressable style={styles.button} onPress={onDone}>
-        <Text style={styles.buttonText}>Done</Text>
-      </Pressable>
-    </View>
+    <ImageBackground
+      source={require("../assets/background/voucher-background.png")}
+      style={styles.background}
+      resizeMode="stretch"
+    >
+      <View style={styles.container}>
+        <Image
+          source={require("../assets/phrases/logo/voucher-sent.png")}
+          style={styles.voucherSentImage}
+          resizeMode="contain"
+        />
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
   container: {
     flex: 1,
     justifyContent: "center",
@@ -35,28 +54,15 @@ const styles = StyleSheet.create({
     gap: 20,
   },
 
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    textAlign: "center",
+  voucherSentImage: {
+    width: 1000,
+    height: 350,
+    marginBottom: 40,
   },
 
   message: {
-    fontSize: 20,
+    fontSize: 35,
     textAlign: "center",
-    maxWidth: 650,
-  },
-
-  button: {
-    marginTop: 16,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 30,
-  },
-
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "600",
+    maxWidth: 800,
   },
 });

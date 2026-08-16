@@ -12,6 +12,7 @@ import { languages } from "../data/languages";
 type LanguageSelectionScreenProps = {
   confirmedLanguage: string;
   unavailableLanguage: string;
+  otherPlayerHasSelected: boolean;
   onConfirmLanguage: (language: string) => void;
 };
 
@@ -61,6 +62,7 @@ const languageButtonImages = {
 export default function LanguageSelectionScreen({
   confirmedLanguage,
   unavailableLanguage,
+  otherPlayerHasSelected,
   onConfirmLanguage,
 }: LanguageSelectionScreenProps) {
   const [temporarySelection, setTemporarySelection] = useState("");
@@ -86,6 +88,7 @@ export default function LanguageSelectionScreen({
           style={styles.logo}
           resizeMode="contain"
         />
+
         <Text style={styles.title}>Choose your language</Text>
 
         <View style={styles.languageGrid}>
@@ -101,7 +104,7 @@ export default function LanguageSelectionScreen({
             return (
               <Pressable
                 key={language}
-                disabled={isUnavailable}
+                disabled={isUnavailable || confirmedLanguage !== ""}
                 onPress={() => setTemporarySelection(language)}
                 style={[
                   styles.languageButtonWrapper,
@@ -128,20 +131,32 @@ export default function LanguageSelectionScreen({
         </View>
 
         <View style={styles.confirmButtonSpace}>
-          <Pressable
-            disabled={temporarySelection === ""}
-            style={[
-              styles.confirmButton,
-              temporarySelection === "" && styles.hiddenConfirmButton,
-            ]}
-            onPress={() => onConfirmLanguage(temporarySelection)}
-          >
-            <Image
-              source={require("../assets/buttons/start-game.png")}
-              style={styles.startImage}
-              resizeMode="contain"
-            />
-          </Pressable>
+          {confirmedLanguage === "" ? (
+            <Pressable
+              disabled={temporarySelection === ""}
+              style={[
+                styles.confirmButton,
+                temporarySelection === "" && styles.hiddenConfirmButton,
+              ]}
+              onPress={() => onConfirmLanguage(temporarySelection)}
+            >
+              <Image
+                source={require("../assets/buttons/start-game.png")}
+                style={styles.startImage}
+                resizeMode="contain"
+              />
+            </Pressable>
+          ) : !otherPlayerHasSelected ? (
+            <View style={styles.languageWaitingContainer}>
+              <Text style={styles.languageWaitingText}>
+                Language successfully selected,
+              </Text>
+
+              <Text style={styles.languageWaitingText2}>
+                waiting for second player...
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
     </ImageBackground>
@@ -251,5 +266,24 @@ const styles = StyleSheet.create({
 
   hiddenConfirmButton: {
     opacity: 0,
+  },
+
+  languageWaitingContainer: {
+    marginTop: 130,
+    alignItems: "center",
+  },
+
+  languageWaitingText: {
+    fontSize: 48,
+    textAlign: "center",
+    lineHeight: 58,
+  },
+
+  languageWaitingText2: {
+    fontSize: 48,
+    textAlign: "center",
+    lineHeight: 58,
+    fontWeight: "bold",
+    color: "#E32B3D",
   },
 });

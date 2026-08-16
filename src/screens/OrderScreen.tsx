@@ -60,7 +60,11 @@ export default function OrderScreen({
           />
         </Pressable>
       ) : (
-        <Text style={styles.verified}>Receipt verified ✓</Text>
+        <View style={styles.waitingContainer}>
+          <Text style={styles.waitingText}>
+            Waiting for the other player...
+          </Text>
+        </View>
       )}
         </View>
     </ImageBackground>
@@ -96,9 +100,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
-  verified: {
-    fontSize: 20,
-    fontWeight: "600",
+  waitingContainer: {
+    position: "absolute",
+    bottom: 300,
+    alignItems: "center",
+  },
+
+  waitingText: {
+    fontSize: 35,
+    textAlign: "center",
+    lineHeight: 58,
+  },
+
+  waitingHighlight: {
+    color: "#E32B3D",
+    fontWeight: "bold",
   },
 
   button: {

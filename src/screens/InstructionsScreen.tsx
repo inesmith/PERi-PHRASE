@@ -8,12 +8,10 @@ import {
 } from "react-native";
 
 type InstructionsScreenProps = {
-  hasStarted: boolean;
   onStart: () => void;
 };
 
 export default function InstructionsScreen({
-  hasStarted,
   onStart,
 }: InstructionsScreenProps) {
   return (
@@ -29,49 +27,56 @@ export default function InstructionsScreen({
           resizeMode="contain"
         />
 
-        <Text style={styles.title}>Instructions:</Text>
+        <Text style={styles.title}>
+          Instructions:
+        </Text>
 
-        <Text style={[styles.instruction, styles.instruction1]}>
+        <Text
+          style={[
+            styles.instruction,
+            styles.instruction1,
+          ]}
+        >
           Choose the South African language that you speak.
         </Text>
 
-        <Text style={[styles.instruction, styles.instruction2]}>
+        <Text
+          style={[
+            styles.instruction,
+            styles.instruction2,
+          ]}
+        >
           Read the phrase that appears out loud.
         </Text>
 
-        <Text style={[styles.instruction, styles.instruction3]}>
+        <Text
+          style={[
+            styles.instruction,
+            styles.instruction3,
+          ]}
+        >
           Your partner must choose the corresponding picture on their screen.
         </Text>
 
-        <Text style={[styles.instruction, styles.instruction4]}>
+        <Text
+          style={[
+            styles.instruction,
+            styles.instruction4,
+          ]}
+        >
           Once the correct picture is chosen, the game will automatically swap your screens.
         </Text>
 
-        {!hasStarted ? (
-          <Pressable
-            style={styles.continueButton}
-            onPress={onStart}
-          >
-            <Image
-              source={require("../assets/buttons/continue.png")}
-              style={styles.continueImage}
-              resizeMode="contain"
-            />
-          </Pressable>
-        ) : (
-          <View style={styles.waitingContainer}>
-            <Text style={styles.waiting}>
-              Waiting for the 
-            </Text>
-
-            <Text style={styles.waiting}>
-              <Text style={styles.waitingHighlight}>
-                second player
-              </Text>
-              {" "} to continue.
-            </Text>
-          </View>
-        )}
+        <Pressable
+          style={styles.continueButton}
+          onPress={onStart}
+        >
+          <Image
+            source={require("../assets/buttons/continue.png")}
+            style={styles.continueImage}
+            resizeMode="contain"
+          />
+        </Pressable>
       </View>
     </ImageBackground>
   );
@@ -142,23 +147,5 @@ const styles = StyleSheet.create({
     width: 820,
     height: 160,
     marginBottom: 100,
-  },
-
-  waitingContainer: {
-    position: "absolute",
-    bottom: 250,
-    alignItems: "center",
-  },
-
-  waiting: {
-    fontSize: 48,
-    fontWeight: "400",
-    textAlign: "center",
-    lineHeight: 58,
-  },
-
-  waitingHighlight: {
-    color: "#E32B3D",
-    fontWeight: "bold",
   },
 });

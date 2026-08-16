@@ -74,7 +74,7 @@ export const languageRoundSets: Record<
 
     {
       id: "afrikaans003",
-      phrase: "Gooi my uit en wag vir 'n byt",
+      phrase: "Gooi my uit en wag vir n byt",
 
       phraseImage: require(
         "../assets/phrases/afrikaans/afrikaans-1.png"
@@ -99,7 +99,7 @@ export const languageRoundSets: Record<
   isiZulu: [
     {
       id: "isizulu001",
-      phrase: "isiZulu phrase 1",
+      phrase: "Yini ememeza kodwa ingenawo umlomo?",
 
       illustrations: [
         { id: "illustration010", label: "Vuvuzela", image: require("../assets/images/Vuvuzela.png") },
@@ -118,7 +118,7 @@ export const languageRoundSets: Record<
 
     {
       id: "isizulu002",
-      phrase: "isiZulu phrase 2",
+      phrase: "Yini egcwala kodwa kuhlale kunendawo yomunye?",
 
       illustrations: [
         { id: "illustration028", label: "PotjiePot", image: require("../assets/images/PotjiePot.png") },
@@ -137,7 +137,7 @@ export const languageRoundSets: Record<
 
     {
       id: "isizulu003",
-      phrase: "isiZulu phrase 3",
+      phrase: "iIlanga liyashisa, kodwa i-style ayimi.",
 
       illustrations: [
         { id: "illustration046", label: "Heart", image: require("../assets/images/Heart.png") },
