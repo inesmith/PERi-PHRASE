@@ -13,7 +13,7 @@ type LanguageSelectionScreenProps = {
   confirmedLanguage: string;
   unavailableLanguage: string;
   otherPlayerHasSelected: boolean;
-  onConfirmLanguage: (language: string) => void;
+  onConfirmLanguage: (language: string) => void | Promise<void>;
 };
 
 const languageButtonImages = {
@@ -66,6 +66,7 @@ export default function LanguageSelectionScreen({
   onConfirmLanguage,
 }: LanguageSelectionScreenProps) {
   const [temporarySelection, setTemporarySelection] = useState("");
+  const [isConfirmingLanguage, setIsConfirmingLanguage] = useState(false);
 
   useEffect(() => {
     if (
@@ -133,12 +134,35 @@ export default function LanguageSelectionScreen({
         <View style={styles.confirmButtonSpace}>
           {confirmedLanguage === "" ? (
             <Pressable
-              disabled={temporarySelection === ""}
+              disabled={
+                temporarySelection === "" ||
+                isConfirmingLanguage
+              }
               style={[
                 styles.confirmButton,
-                temporarySelection === "" && styles.hiddenConfirmButton,
+                temporarySelection === "" &&
+                  styles.hiddenConfirmButton,
+                isConfirmingLanguage &&
+                  styles.disabledButton,
               ]}
-              onPress={() => onConfirmLanguage(temporarySelection)}
+              onPress={async () => {
+                if (
+                  temporarySelection === "" ||
+                  isConfirmingLanguage
+                ) {
+                  return;
+                }
+
+                setIsConfirmingLanguage(true);
+
+                try {
+                  await onConfirmLanguage(
+                    temporarySelection
+                  );
+                } finally {
+                  setIsConfirmingLanguage(false);
+                }
+              }}
             >
               <Image
                 source={require("../assets/buttons/start-game.png")}
@@ -266,6 +290,10 @@ const styles = StyleSheet.create({
 
   hiddenConfirmButton: {
     opacity: 0,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
   },
 
   languageWaitingContainer: {

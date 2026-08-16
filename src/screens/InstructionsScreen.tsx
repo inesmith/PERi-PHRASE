@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ImageBackground,
   Pressable,
@@ -8,12 +9,14 @@ import {
 } from "react-native";
 
 type InstructionsScreenProps = {
-  onStart: () => void;
+  onStart: () => void | Promise<void>;
 };
 
 export default function InstructionsScreen({
   onStart,
 }: InstructionsScreenProps) {
+  const [isStarting, setIsStarting] = useState(false);
+
   return (
     <ImageBackground
       source={require("../assets/background/instructions-background.png")}
@@ -68,8 +71,22 @@ export default function InstructionsScreen({
         </Text>
 
         <Pressable
-          style={styles.continueButton}
-          onPress={onStart}
+          style={[
+            styles.continueButton,
+            isStarting && styles.disabledButton,
+          ]}
+          disabled={isStarting}
+          onPress={async () => {
+            if (isStarting) return;
+
+            setIsStarting(true);
+
+            try {
+              await onStart();
+            } finally {
+              setIsStarting(false);
+            }
+          }}
         >
           <Image
             source={require("../assets/buttons/continue.png")}
@@ -147,5 +164,9 @@ const styles = StyleSheet.create({
     width: 820,
     height: 160,
     marginBottom: 100,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
   },
 });

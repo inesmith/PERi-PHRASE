@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -6,12 +7,11 @@ import {
   ImageBackground,
   Image,
 } from "react-native";
-import { PlayerRole } from "../types/PlayerRole";
 
 type OrderScreenProps = {
   orderNumber: string;
   receiptVerified: boolean;
-  onVerifyReceipt: () => void;
+  onVerifyReceipt: () => void | Promise<void>;
 };
 
 export default function OrderScreen({
@@ -19,54 +19,68 @@ export default function OrderScreen({
   receiptVerified,
   onVerifyReceipt,
 }: OrderScreenProps) {
+  const [isScanning, setIsScanning] = useState(false);
 
   return (
-  <ImageBackground
-    source={require("../assets/background/OrderScreen.png")}
-    style={styles.background}
-    resizeMode="cover"
-  >
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../assets/background/OrderScreen.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.readyText}>Are you ready to</Text>
 
-      <Text style={styles.readyText}>Are you ready to</Text>
+        <Image
+          source={require("../assets/phrases/logo/logo2.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-      <Image
-        source={require("../assets/phrases/logo/logo2.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+        <View style={styles.instructionContainer}>
+          <Text style={styles.instructionText}>
+            Grab a teammate and{" "}
+            <Text style={styles.highlightText}>scan</Text>
+          </Text>
 
-      <View style={styles.instructionContainer}>
-        <Text style={styles.instructionText}>
-          Grab a teammate and{" "}
-          <Text style={styles.highlightText}>scan</Text>
-        </Text>
-
-        <Text style={styles.instructionText}>
-          <Text style={styles.highlightText}>the QR code</Text>
-          {" "}on your receipt.
-        </Text>
-      </View>
-
-      {!receiptVerified ? (
-        <Pressable
-          style={styles.scanButton}
-          onPress={onVerifyReceipt}
-        >
-          <Image
-            source={require("../assets/buttons/scan.png")}
-            style={styles.scanImage}
-            resizeMode="contain"
-          />
-        </Pressable>
-      ) : (
-        <View style={styles.waitingContainer}>
-          <Text style={styles.waitingText}>
-            Waiting for the other player...
+          <Text style={styles.instructionText}>
+            <Text style={styles.highlightText}>the QR code</Text>{" "}
+            on your receipt.
           </Text>
         </View>
-      )}
-        </View>
+
+        {!receiptVerified ? (
+          <Pressable
+            style={[
+              styles.scanButton,
+              isScanning && styles.disabledButton,
+            ]}
+            disabled={isScanning}
+            onPress={async () => {
+              if (isScanning) return;
+
+              setIsScanning(true);
+
+              try {
+                await onVerifyReceipt();
+              } finally {
+                setIsScanning(false);
+              }
+            }}
+          >
+            <Image
+              source={require("../assets/buttons/scan.png")}
+              style={styles.scanImage}
+              resizeMode="contain"
+            />
+          </Pressable>
+        ) : (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingText}>
+              Waiting for the other player...
+            </Text>
+          </View>
+        )}
+      </View>
     </ImageBackground>
   );
 }
@@ -170,5 +184,9 @@ const styles = StyleSheet.create({
   scanImage: {
     width: 700,
     height: 180,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
   },
 });

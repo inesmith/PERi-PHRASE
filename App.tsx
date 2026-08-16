@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendVoucherEmail } from "./src/services/voucherService";
 import { TOTAL_ROUNDS } from "./src/data/gameRounds";
+import { Asset } from "expo-asset";
 
 import OrderScreen from "./src/screens/OrderScreen";
 import InstructionsScreen from "./src/screens/InstructionsScreen";
@@ -47,7 +48,140 @@ export default function App() {
     "options" | "email" | "sent" | "printing" | "printed"
   >("options");
 
+  const [assetsReady, setAssetsReady] =
+    useState(false);
+
   const totalRounds = TOTAL_ROUNDS;
+
+  // --------------------------------------------------
+  // PRELOAD IMAGE ASSETS
+  // --------------------------------------------------
+
+  useEffect(() => {
+    const preloadAssets = async () => {
+      try {
+        await Asset.loadAsync([
+          // ------------------------------------------
+          // BACKGROUNDS
+          // ------------------------------------------
+
+          require("./src/assets/background/OrderScreen.png"),
+          require("./src/assets/background/instructions-background.png"),
+          require("./src/assets/background/language-background.png"),
+          require("./src/assets/background/grid-background.png"),
+          require("./src/assets/background/reader-background.png"),
+          require("./src/assets/background/complete-background.png"),
+          require("./src/assets/background/champion.png"),
+          require("./src/assets/background/voucher-background.png"),
+
+          // ------------------------------------------
+          // LOGOS / LARGE TEXT ART
+          // ------------------------------------------
+
+          require("./src/assets/phrases/logo/logo.png"),
+          require("./src/assets/phrases/logo/logo2.png"),
+          require("./src/assets/phrases/logo/champion.png"),
+          require("./src/assets/phrases/logo/email-voucher.png"),
+          require("./src/assets/phrases/logo/voucher-sent.png"),
+
+          // ------------------------------------------
+          // MAIN BUTTONS
+          // ------------------------------------------
+
+          require("./src/assets/buttons/scan.png"),
+          require("./src/assets/buttons/continue.png"),
+          require("./src/assets/buttons/start-game.png"),
+          require("./src/assets/buttons/next.png"),
+          require("./src/assets/buttons/send.png"),
+
+          // ------------------------------------------
+          // AFRIKAANS READER PHRASES
+          // ------------------------------------------
+
+          require("./src/assets/phrases/afrikaans/afrikaans-1.png"),
+          require("./src/assets/phrases/afrikaans/afrikaans-2.png"),
+          require("./src/assets/phrases/afrikaans/afrikaans-3.png"),
+
+          // ------------------------------------------
+          // ZULU READER PHRASES
+          // ------------------------------------------
+
+          require("./src/assets/phrases/zulu/Full-Taxi.png"),
+          require("./src/assets/phrases/zulu/zulu-vuvuzela.png"),
+          require("./src/assets/phrases/zulu/zulu-buckethat.png"),
+
+          // ------------------------------------------
+          // AFRIKAANS -> ZULU RESULT PHRASES
+          // ------------------------------------------
+
+          require("./src/assets/phrases/zulu/zulu-chilli.png"),
+          require("./src/assets/phrases/zulu/zulu-hadeda.png"),
+          require("./src/assets/phrases/zulu/zulu-fishing.png"),
+
+          // ------------------------------------------
+          // ZULU -> AFRIKAANS RESULT PHRASES
+          // ------------------------------------------
+
+          require("./src/assets/phrases/afrikaans/zulu-taxi.png"),
+          require("./src/assets/phrases/afrikaans/zulu-vuvuzela.png"),
+          require("./src/assets/phrases/afrikaans/zulu-buckethat.png"),
+
+          // ------------------------------------------
+          // LANGUAGE BUTTONS
+          // ------------------------------------------
+
+          require("./src/assets/buttons/isiZulu-default.png"),
+          require("./src/assets/buttons/isiZulu-selected.png"),
+
+          require("./src/assets/buttons/isiXhosa-default.png"),
+          require("./src/assets/buttons/isiXhosa-selected.png"),
+
+          require("./src/assets/buttons/afrikaans-default.png"),
+          require("./src/assets/buttons/afrikaans-selected.png"),
+
+          require("./src/assets/buttons/sepedi-default.png"),
+          require("./src/assets/buttons/sepedi-selected.png"),
+
+          require("./src/assets/buttons/setswana-default.png"),
+          require("./src/assets/buttons/setswana-selected.png"),
+
+          require("./src/assets/buttons/sesotho-default.png"),
+          require("./src/assets/buttons/sesotho-selected.png"),
+
+          require("./src/assets/buttons/xitsonga-default.png"),
+          require("./src/assets/buttons/xitsonga-selected.png"),
+
+          require("./src/assets/buttons/siswati-default.png"),
+          require("./src/assets/buttons/siswati-selected.png"),
+
+          require("./src/assets/buttons/tshivenda-default.png"),
+          require("./src/assets/buttons/tshivenda-selected.png"),
+
+          require("./src/assets/buttons/isindebele-default.png"),
+          require("./src/assets/buttons/isindebele-selected.png"),
+
+          // ------------------------------------------
+          // EMAIL INPUT FRAME
+          // ------------------------------------------
+
+          require("./src/components/input.png"),
+        ]);
+
+        setAssetsReady(true);
+      } catch (error) {
+        console.error(
+          "Failed to preload assets:",
+          error
+        );
+
+        // Still allow the app to continue if one
+        // non-critical image fails to preload.
+        setAssetsReady(true);
+      }
+    };
+
+    preloadAssets();
+  }, []);
 
   // --------------------------------------------------
   // LIVE FIRESTORE SESSION
@@ -137,7 +271,6 @@ export default function App() {
 
     startGame();
   }, [session, playerRole]);
-  
 
   // --------------------------------------------------
   // CLEAR OLD PLAYER ROLE FOR A FRESH GAME
@@ -172,10 +305,14 @@ export default function App() {
   }, [session]);
 
   // --------------------------------------------------
-  // WAIT UNTIL FIRESTORE + SCREEN SLOT ARE READY
+  // WAIT UNTIL ASSETS + FIRESTORE + SCREEN ARE READY
   // --------------------------------------------------
 
-  if (!session || !screenSlot) {
+  if (
+    !assetsReady ||
+    !session ||
+    !screenSlot
+  ) {
     return null;
   }
 
@@ -242,11 +379,11 @@ export default function App() {
       : session.player2Language;
 
   const otherPlayerHasSelected =
-  playerRole === "player1"
-    ? session.player2Language !== ""
-    : playerRole === "player2"
-      ? session.player1Language !== ""
-      : false;
+    playerRole === "player1"
+      ? session.player2Language !== ""
+      : playerRole === "player2"
+        ? session.player1Language !== ""
+        : false;
 
   // --------------------------------------------------
   // RECEIPT SCAN
@@ -257,8 +394,6 @@ export default function App() {
       return;
     }
 
-    // First scanner = Player 1
-    // Second scanner = Player 2
     const claimedRole =
       await claimPlayerRole();
 
@@ -348,9 +483,6 @@ export default function App() {
   const handleResetGame = async () => {
     await resetGameSession();
 
-    // Remove only the customer's temporary identity.
-    // Keep screenSlot so each physical screen remembers
-    // whether it is screen1 or screen2.
     await AsyncStorage.removeItem(
       "playerRole"
     );
@@ -452,6 +584,8 @@ export default function App() {
               "Voucher email failed:",
               error
             );
+
+            throw error;
           }
         }}
         onCancel={() => {
@@ -471,7 +605,9 @@ export default function App() {
   ) {
     return (
       <ResultsScreen
-        correctRounds={session.correctRounds}
+        correctRounds={
+          session.correctRounds
+        }
         totalRounds={totalRounds}
         onEmailVoucher={() => {
           setVoucherView("email");
@@ -517,10 +653,18 @@ export default function App() {
   if (hasStarted) {
     return (
       <LanguageSelectionScreen
-        confirmedLanguage={selectedLanguage}
-        unavailableLanguage={unavailableLanguage}
-        otherPlayerHasSelected={otherPlayerHasSelected}
-        onConfirmLanguage={handleSelectLanguage}
+        confirmedLanguage={
+          selectedLanguage
+        }
+        unavailableLanguage={
+          unavailableLanguage
+        }
+        otherPlayerHasSelected={
+          otherPlayerHasSelected
+        }
+        onConfirmLanguage={
+          handleSelectLanguage
+        }
       />
     );
   }
@@ -538,15 +682,16 @@ export default function App() {
   }
 
   // --------------------------------------------------
-  // DEFAULT:
-  // CALL ORDER NUMBER + SCAN RECEIPT
+  // DEFAULT
   // --------------------------------------------------
 
   return (
     <OrderScreen
       orderNumber={orderNumber}
       receiptVerified={receiptVerified}
-      onVerifyReceipt={handleVerifyReceipt}
+      onVerifyReceipt={
+        handleVerifyReceipt
+      }
     />
   );
 }

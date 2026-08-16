@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -8,12 +9,30 @@ import {
 type ResultsScreenProps = {
   correctRounds: number;
   totalRounds: number;
-  onEmailVoucher: () => void;
+  onEmailVoucher: () => void | Promise<void>;
 };
 
 export default function ResultsScreen({
   onEmailVoucher,
 }: ResultsScreenProps) {
+  const [isOpeningReward, setIsOpeningReward] = useState(false);
+
+  const handleRewardPress = async () => {
+    if (isOpeningReward) return;
+
+    setIsOpeningReward(true);
+
+    // Give React Native time to visibly show
+    // the opacity change before changing screens.
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    try {
+      await onEmailVoucher();
+    } finally {
+      setIsOpeningReward(false);
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../assets/background/champion.png")}
@@ -27,8 +46,12 @@ export default function ResultsScreen({
       />
 
       <Pressable
-        style={styles.emailButton}
-        onPress={onEmailVoucher}
+        style={[
+          styles.emailButton,
+          isOpeningReward && styles.disabledButton,
+        ]}
+        disabled={isOpeningReward}
+        onPress={handleRewardPress}
       >
         <Image
           source={require("../assets/buttons/reward.png")}
@@ -66,5 +89,9 @@ const styles = StyleSheet.create({
     width: 819,
     height: 255,
     marginBottom: 200,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
   },
 });

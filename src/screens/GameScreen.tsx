@@ -57,10 +57,10 @@ export default function GameScreen({
   const getReaderPhraseImage = () => {
     switch (roundData?.id) {
       case "isizulu001":
-        return require("../assets/phrases/zulu/Full-Taxi.png");
+        return require("../assets/phrases/zulu/zulu-vuvuzela.png");
 
       case "isizulu002":
-        return require("../assets/phrases/zulu/zulu-vuvuzela.png");
+        return require("../assets/phrases/zulu/Full-Taxi.png");
 
       case "isizulu003":
         return require("../assets/phrases/zulu/zulu-buckethat.png");
@@ -83,26 +83,26 @@ export default function GameScreen({
       // -----------------------------------------------
 
       case "afrikaans001":
-        return require("../assets/phrases/zulu/zulu-chilli.png");
+        return require("../assets/phrases/english/what-burns-twice.png");
 
       case "afrikaans002":
-        return require("../assets/phrases/zulu/zulu-hadeda.png");
+        return require("../assets/phrases/english/alarm-clock.png");
 
       case "afrikaans003":
-        return require("../assets/phrases/zulu/zulu-fishing.png");
+        return require("../assets/phrases/english/throuw-out.png");
 
       // -----------------------------------------------
       // ZULU READER -> AFRIKAANS RESULT
       // -----------------------------------------------
 
       case "isizulu001":
-        return require("../assets/phrases/afrikaans/zulu-taxi.png");
+        return require("../assets/phrases/english/no-mouth.png");
 
       case "isizulu002":
-        return require("../assets/phrases/afrikaans/zulu-vuvuzela.png");
+        return require("../assets/phrases/english/more-space.png");
 
       case "isizulu003":
-        return require("../assets/phrases/afrikaans/zulu-buckethat.png");
+        return require("../assets/phrases/english/style-dont-stop.png");
 
       default:
         return phraseImage;

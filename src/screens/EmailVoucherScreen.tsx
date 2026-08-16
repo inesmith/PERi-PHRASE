@@ -57,11 +57,12 @@ export default function EmailVoucherScreen({
               setEmail(text);
               setErrorMessage("");
             }}
-            placeholder="name@example.com"
-            placeholderTextColor="#777"
+            placeholder="Email Address"
+            placeholderTextColor="#000000"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            returnKeyType="done"
           />
         </View>
 
@@ -71,34 +72,37 @@ export default function EmailVoucherScreen({
           </Text>
         )}
 
-        {canSend && (
-          <Pressable
-            style={styles.sendButton}
-            disabled={isSending}
-            onPress={async () => {
-              if (isSending) return;
+        <Pressable
+          style={[
+            styles.sendButton,
+            isSending && styles.disabledButton,
+          ]}
+          disabled={isSending}
+          onPress={async () => {
+            if (isSending || !canSend) {
+              return;
+            }
 
-              setIsSending(true);
-              setErrorMessage("");
+            setIsSending(true);
+            setErrorMessage("");
 
-              try {
-                await onSend(trimmedEmail);
-              } catch (error) {
-                setErrorMessage(
-                  "We couldn't send your voucher. Please check your email address and try again."
-                );
-              } finally {
-                setIsSending(false);
-              }
-            }}
-          >
-            <Image
-              source={require("../assets/buttons/send.png")}
-              style={styles.sendImage}
-              resizeMode="contain"
-            />
-          </Pressable>
-        )}
+            try {
+              await onSend(trimmedEmail);
+            } catch (error) {
+              setErrorMessage(
+                "We couldn't send your voucher. Please check your email address and try again."
+              );
+            } finally {
+              setIsSending(false);
+            }
+          }}
+        >
+          <Image
+            source={require("../assets/buttons/send.png")}
+            style={styles.sendImage}
+            resizeMode="contain"
+          />
+        </Pressable>
       </View>
     </ImageBackground>
   );
@@ -147,14 +151,28 @@ const styles = StyleSheet.create({
 
   input: {
     position: "absolute",
-    width: 720,
-    height: 100,
+    width: 600,
+    height: 80,
+
     paddingHorizontal: 25,
+
     fontSize: 32,
     textAlign: "center",
     color: "#000",
-    backgroundColor: "transparent",
-    borderWidth: 0,
+
+    borderColor: "#222222",
+    borderRadius: 18,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+
+    elevation: 10,
+
     outlineWidth: 0,
   },
 
@@ -167,6 +185,10 @@ const styles = StyleSheet.create({
   sendImage: {
     width: 820,
     height: 160,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
   },
 
   errorText: {
