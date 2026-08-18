@@ -50,20 +50,27 @@ export default function EmailVoucherScreen({
             resizeMode="contain"
           />
 
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrorMessage("");
-            }}
-            placeholder="Email Address"
-            placeholderTextColor="#000000"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-          />
+          <ImageBackground
+            source={require("../assets/background/main-background.png")}
+            style={styles.inputBackground}
+            imageStyle={styles.inputBackgroundImage}
+            resizeMode="cover"
+          >
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setErrorMessage("");
+              }}
+              placeholder="Email Address"
+              placeholderTextColor="#000000"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
+            />
+          </ImageBackground>
         </View>
 
         {errorMessage !== "" && (
@@ -149,19 +156,12 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  input: {
+  inputBackground: {
     position: "absolute",
     width: 600,
     height: 80,
-
-    paddingHorizontal: 25,
-
-    fontSize: 32,
-    textAlign: "center",
-    color: "#000",
-
-    borderColor: "#222222",
-    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
 
     shadowColor: "#000",
     shadowOffset: {
@@ -172,6 +172,25 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
 
     elevation: 10,
+  },
+
+  inputBackgroundImage: {
+    borderRadius: 18,
+  },
+
+  input: {
+    width: "100%",
+    height: "100%",
+
+    paddingHorizontal: 25,
+
+    fontSize: 32,
+    textAlign: "center",
+    color: "#000",
+
+    backgroundColor: "transparent",
+
+    borderRadius: 18,
 
     outlineWidth: 0,
   },
